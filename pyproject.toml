@@ -1,6 +1,9 @@
 [project]
 name = "zoomy-zodiacs"
-version = "0"
+authors = [
+    {name = "Beardrop2", email = "benjamin.ghwik@gmail.com"}
+]
+version = "0.1.0"
 requires-python = "==3.12.*"
 dependencies = [
     "pytest>=8.2.2",
@@ -14,6 +17,7 @@ test = {cmd = "python -m pytest"}
 
 # Start main, pipe output to a log file, and the pid to pid.txt
 start = { cmd = "python __main__.py > bot.log 2>&1 & echo $! > pid.txt" }
+stop = { cmd = "kill $(cat pid.txt)"}
 
 [tool.ruff]
 # Increase the line length. This breaks PEP8 but it is way easier to work with.
