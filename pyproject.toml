@@ -1,3 +1,9 @@
+[tool.poetry]
+authors = ["Beardrop"]
+name = "ZoomyZodiacs"
+version = "0.0.1"
+description = "Entry into the Python Discord Code Jam 2024"
+
 [tool.ruff]
 # Increase the line length. This breaks PEP8 but it is way easier to work with.
 # The original reason for this limit was a standard vim terminal is only 79 characters,
