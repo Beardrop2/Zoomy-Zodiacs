@@ -3,7 +3,7 @@
 ## A primer
 
 Hello code jam participants! We've put together this repository template for you to use in [our code jams](https://pythondiscord.com/events/) or even other Python events!
-
+ 
 This document contains the following information:
 
 1. [What does this template contain?](#what-does-this-template-contain)
