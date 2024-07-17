@@ -5,31 +5,25 @@ on:
   push:
     branches:
       - main
-      - 'releases/**'
 
 jobs:
-  build:
+  build-and-run:
     runs-on: self-hosted
     steps:
+      - name: Stop bot
+        run: pdm run stop
       - name: Checkout repository
-        uses: actions/checkout@v4
-      - name: Setup PDM
-        uses: pdm-project/setup-pdm@v4
+        run: git fetch; git checkout -r main; git switch main; git pull
         # You are now able to use PDM in your workflow
+      - name: Environment
+        run: source ./.venv/bin/activiate
       - name: build
         run: pdm build
       - name: install
         run: pdm install
-
-  test:
-    runs-on: self-hosted
-    needs: build
-    steps:
       - name: Run pre-commit hooks
-        uses: pre-commit/action@v3.0.1
-
-  deploy:
-    runs-on: self-hosted
-    needs: test
-    steps:
-      - run: python ./bot/__main__.py
+        run: pdm run pre-commit
+      - name: Run tests
+        run: pdm run test
+      - name: Start Bot
+        run: pdm run start
