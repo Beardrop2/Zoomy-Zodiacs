@@ -1,0 +1,35 @@
+name: deploy-to-aws
+run-name: Deploy to AWS by @${{ github.actor }}
+
+on:
+  push:
+    branches:
+      - main
+      - 'releases/**'
+
+jobs:
+  build:
+    runs-on: self-hosted
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Setup PDM
+        uses: pdm-project/setup-pdm@v4
+        # You are now able to use PDM in your workflow
+      - name: build
+        run: pdm build
+      - name: install
+        run: pdm install
+
+  test:
+    runs-on: self-hosted
+    needs: build
+    steps:
+      - name: Run pre-commit hooks
+        uses: pre-commit/action@v3.0.1
+
+  deploy:
+    runs-on: self-hosted
+    needs: test
+    steps:
+      - run: python ./bot/__main__.py
