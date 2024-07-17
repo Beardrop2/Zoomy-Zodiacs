@@ -42,3 +42,21 @@ ignore = [
     "ANN101",
     "ANN102",
 ]
+
+[tool.pdm]
+distribution = false
+
+[project]
+name = "Zoomy-Zodiacs"
+version = "0.1.0"
+description = "Default template for PDM package"
+authors = [
+    {name = "unseeyou", email = "siqi.chen111@gmail.com"},
+]
+dependencies = [
+    "disnake>=2.9.2",
+]
+requires-python = "==3.12.*"
+readme = "README.md"
+license = {text = "MIT"}
+
