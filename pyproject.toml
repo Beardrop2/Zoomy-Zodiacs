@@ -1,3 +1,4 @@
+
 [tool.ruff]
 # Increase the line length. This breaks PEP8 but it is way easier to work with.
 # The original reason for this limit was a standard vim terminal is only 79 characters,
@@ -59,4 +60,3 @@ dependencies = [
 requires-python = "==3.12.*"
 readme = "README.md"
 license = {text = "MIT"}
-
