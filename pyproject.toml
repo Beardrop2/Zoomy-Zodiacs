@@ -1,3 +1,14 @@
+[project]
+name = "zoomy-zodiacs"
+version = "0"
+requires-python = "==3.12.*"
+dependencies = []
+
+[tool.pdm.dev-dependencies]
+dev = ["ruff>=0.5.2", "pre-commit>=3.7.1"]
+
+[tool.pdm.scripts]
+start = { cmd = "python -m bot" }
 
 [tool.ruff]
 # Increase the line length. This breaks PEP8 but it is way easier to work with.
@@ -9,11 +20,6 @@ line-length = 119
 target-version = "py312"
 # Automatically fix auto-fixable issues.
 fix = true
-# The directory containing the source code. If you choose a different project layout
-# you will need to update this value.
-src = ["src"]
-
-[tool.ruff.lint]
 # Enable all linting rules.
 select = ["ALL"]
 # Ignore some of the most obnoxious linting errors.
@@ -46,17 +52,3 @@ ignore = [
 
 [tool.pdm]
 distribution = false
-
-[project]
-name = "Zoomy-Zodiacs"
-version = "0.1.0"
-description = "Default template for PDM package"
-authors = [
-    {name = "unseeyou", email = "siqi.chen111@gmail.com"},
-]
-dependencies = [
-    "disnake>=2.9.2",
-]
-requires-python = "==3.12.*"
-readme = "README.md"
-license = {text = "MIT"}
