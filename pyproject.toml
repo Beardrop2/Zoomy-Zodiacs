@@ -18,7 +18,7 @@ dependencies = [
 dev = ["ruff>=0.5.2", "pre-commit>=3.7.1", "pytest>=8.2.2"]
 
 [tool.pdm.scripts]
-test = {cmd = "python -m pytest"}
+test = { cmd = "python -m pytest" }
 
 # Start main, pipe output to a log file, and the pid to pid.txt
 start = { cmd = "python __main__.py > bot.log 2>&1 & echo $! > pid.txt" }
