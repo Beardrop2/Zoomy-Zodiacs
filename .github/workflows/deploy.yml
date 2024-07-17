@@ -1,0 +1,31 @@
+name: deploy-to-aws
+run-name: Deploy to AWS by @${{ github.actor }}
+
+on:
+  push:
+    branches:
+      - main
+      - 'releases/**'
+
+jobs:
+  build:
+    runs-on: self-hosted
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up python
+        uses: setup-python
+      - name: build
+        run: pdm build
+
+  test:
+    runs-on: self-hosted
+    steps:
+      - name: Run Tests
+        run: pdm run pytest
+
+  deploy:
+    runs-on: self-hosted
+    needs: build
+    steps:
+      - run: echo RUN!

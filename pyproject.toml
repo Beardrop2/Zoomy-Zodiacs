@@ -1,8 +1,19 @@
-[tool.poetry]
-authors = ["Beardrop"]
-name = "ZoomyZodiacs"
-version = "0.0.1"
+[project]
+name = "zoomyzodiacs"
+version = "0.1.0"
 description = "Entry into the Python Discord Code Jam 2024"
+authors = [
+    {name = "Beardrop2", email = "benjamin.ghwik@gmail.com"},
+]
+dependencies = [
+    "ruff~=0.5.0",
+    "pre-commit~=3.7.1",
+    "pytest>=8.2.2",
+]
+requires-python = ">=3.12"
+readme = "README.md"
+license = {text = "MIT"}
+
 
 [tool.ruff]
 # Increase the line length. This breaks PEP8 but it is way easier to work with.
@@ -16,7 +27,7 @@ target-version = "py312"
 fix = true
 # The directory containing the source code. If you choose a different project layout
 # you will need to update this value.
-src = ["src"]
+
 
 [tool.ruff.lint]
 # Enable all linting rules.
@@ -48,3 +59,20 @@ ignore = [
     "ANN101",
     "ANN102",
 ]
+
+# pyproject.toml
+[tool.pytest.ini_options]
+minversion = "8.2"
+addopts = "-ra -q"
+python_files = "test_*.py"
+testpaths = [
+    "tests"
+]
+
+[build-system]
+requires = ["pdm-backend"]
+build-backend = "pdm.backend"
+
+
+[tool.pdm]
+distribution = true
