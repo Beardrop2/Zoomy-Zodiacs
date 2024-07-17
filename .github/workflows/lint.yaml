@@ -26,10 +26,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Python ${{ env.PYTHON_VERSION }}
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
+      - name: Setup PDM
+        uses: pdm-project/setup-pdm@v4
+        # You are now able to use PDM in your workflow
+      - name: Install dependencies
+        run: pdm install
 
       - name: Run pre-commit hooks
         uses: pre-commit/action@v3.0.1

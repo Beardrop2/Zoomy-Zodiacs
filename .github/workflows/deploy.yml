@@ -11,10 +11,11 @@ jobs:
   build:
     runs-on: self-hosted
     steps:
-      - name: Check out repository
+      - name: Checkout repository
         uses: actions/checkout@v4
-      - name: Set up python
-        uses: setup-python
+      - name: Setup PDM
+        uses: pdm-project/setup-pdm@v4
+        # You are now able to use PDM in your workflow
       - name: build
         run: pdm build
 
