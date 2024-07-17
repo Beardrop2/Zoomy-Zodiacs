@@ -67,12 +67,12 @@ It follows the same code style enforced by [Black](https://black.readthedocs.io/
 
 ### Pre-commit: run linting before committing
 
-The second tool doesn't check your code, but rather makes sure that you actually *do* check it.
+The second tool doesn't check your code, but rather makes sure that you actually _do_ check it.
 
 It makes use of a feature called [Git hooks](https://git-scm.com/book/en/v2/Customizing-Git-Git-Hooks) which allow you to run a piece of code before running `git commit`.
 The good thing about it is that it will cancel your commit if the lint doesn't pass. You won't have to wait for GitHub Actions to report issues and have a second fix commit.
 
-It is *installed* by running `pre-commit install` and can be run manually by calling only `pre-commit`.
+It is _installed_ by running `pre-commit install` and can be run manually by calling only `pre-commit`.
 
 [Lint before you push!](https://soundcloud.com/lemonsaurusrex/lint-before-you-push)
 
@@ -106,7 +106,7 @@ One person in the team, preferably the leader, will have to create the repositor
 You are now ready to go! Sit down, relax, and wait for the kickstart!
 
 > [!IMPORTANT]
-> Don't forget to swap "Python Discord" in the [`LICENSE.txt`](LICENSE.txt) file for the name of each of your team members or the name of your team *after* the start of the code jam.
+> Don't forget to swap "Python Discord" in the [`LICENSE.txt`](LICENSE.txt) file for the name of each of your team members or the name of your team _after_ the start of the code jam.
 
 ### Using the default pip setup
 
