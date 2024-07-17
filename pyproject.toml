@@ -1,7 +1,12 @@
 [project]
 name = "zoomy-zodiacs"
 authors = [
-    {name = "Beardrop2", email = "benjamin.ghwik@gmail.com"}
+    {name = "Beardrop2", email = "benjamin.ghwik@gmail.com"},
+    {name = "interrrp"},
+    {name = "unseeyou"},
+    {name = "pk.kyle"},
+    {name = "matt_lock"},
+    {name = "eth47turbo"}
 ]
 version = "0.1.0"
 requires-python = "==3.12.*"
@@ -71,6 +76,3 @@ testpaths = [
 [build-system]
 requires = ["pdm-backend"]
 build-backend = "pdm.backend"
-
-[tool.pdm]
-distribution = true
