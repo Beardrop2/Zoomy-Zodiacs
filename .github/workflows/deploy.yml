@@ -48,6 +48,8 @@ jobs:
           working-directory: ./Zoomy-Zodiacs
     steps:
       - run: echo "$HOME/.local/bin" >> $GITHUB_PATH
+      - name: lint
+        run: pdm run pre-commit
       - name: Run tests
         run: pdm run test || true
 
