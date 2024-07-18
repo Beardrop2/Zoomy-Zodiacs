@@ -8,7 +8,7 @@ on:
       - CICD2
 
 jobs:
-  build-and-run:
+  cleanup:
     runs-on: self-hosted
     steps:
       - name: Stop Server
@@ -17,22 +17,37 @@ jobs:
       - name: Clean Up
         if: always()
         run: cd ${{ github.workspace }}; rm -rf Zoomy-Zodiacs;
+
+  build:
+    runs-on: self-hosted
+    needs: cleanup
+    steps:
       - name: Checkout repository
         run: git clone https://github.com/Beardrop2/Zoomy-Zodiacs.git
+      - name: wait
+        run: sleep 10 # For some reason, the action seems to checkout before the clone is done.
       - run: cd $(basename ${{ github.repository }} .git);
       - run: git fetch origin ${{ github.ref_name }};
       - run: git checkout ${{ github.ref_name }};
       - name: Environment
         run: source ./.venv/bin/activiate
+      - name: Run pre-commit hooks
+        run: pdm run pre-commit
       - name: build
         run: pdm build
       - name: install
         run: pdm install
-      - name: Stop bot # PDM install required before stop script
-        run: pdm run stop
-      - name: Run pre-commit hooks
-        run: pdm run pre-commit
+
+  test:
+    runs-on: self-hosted
+    needs: build
+    steps:
       - name: Run tests
         run: pdm run test
+  
+  run:
+    runs-on: self-hosted
+    needs: test
+    steps:
       - name: Start Bot
         run: pdm run start
