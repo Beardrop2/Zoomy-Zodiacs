@@ -47,8 +47,9 @@ jobs:
       run:
           working-directory: ./Zoomy-Zodiacs
     steps:
+      - run: echo "$HOME/.local/bin" >> $GITHUB_PATH
       - name: Run tests
-        run: cd ${{ github.workspace }}; pdm run test
+        run: pdm run test
   
   run:
     runs-on: self-hosted
@@ -57,5 +58,6 @@ jobs:
       run:
           working-directory: ./Zoomy-Zodiacs
     steps:
+      - run: echo "$HOME/.local/bin" >> $GITHUB_PATH
       - name: Start Bot
-        run: cd ${{ github.workspace }}; pdm run start
+        run: pdm run start
