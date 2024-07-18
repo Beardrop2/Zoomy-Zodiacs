@@ -11,6 +11,13 @@ jobs:
   build-and-run:
     runs-on: self-hosted
     steps:
+      - name: Clean Up
+      if: always()
+      run: | 
+        echo "Cleaning up...
+        kill $(cat pid.txt) || true
+        cd ${{ github.workspace }}
+        rm -rf $(basename $REPO_URL .git)
       - name: Checkout repository
         run: git clone https://github.com/Beardrop2/Zoomy-Zodiacs.git
       - run: cd $(basename ${{ github.repository }} .git);
