@@ -25,26 +25,26 @@ jobs:
       - name: Checkout repository
         run: git clone https://github.com/Beardrop2/Zoomy-Zodiacs.git
       - run: cd Zoomy-Zodiacs; pwd; ls -la;
-      - run: git checkout origin CICD2
+      - run: cd ${{ github.workspace }}; git checkout origin/CICD2
       - name: Environment
-        run: source ./.venv/bin/activiate
+        run: cd ${{ github.workspace }}; source ./.venv/bin/activiate
       - name: Run pre-commit hooks
-        run: pdm run pre-commit
-      - name: build
-        run: pdm build
+        run: cd ${{ github.workspace }}; pdm run pre-commit
       - name: install
-        run: pdm install
+        run: cd ${{ github.workspace }}; pdm install
+      - name: build
+        run: cd ${{ github.workspace }}; pdm build
 
   test:
     runs-on: self-hosted
     needs: build
     steps:
       - name: Run tests
-        run: pdm run test
+        run: cd ${{ github.workspace }}; pdm run test
   
   run:
     runs-on: self-hosted
     needs: test
     steps:
       - name: Start Bot
-        run: pdm run start
+        run: cd ${{ github.workspace }}; pdm run start
