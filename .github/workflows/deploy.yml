@@ -24,10 +24,7 @@ jobs:
     steps:
       - name: Checkout repository
         run: git clone https://github.com/Beardrop2/Zoomy-Zodiacs.git
-      - name: wait
-        run: sleep 10 # For some reason, the action seems to checkout before the clone is done.
-      - run: cd $(basename ${{ github.repository }} .git); pwd;
-      - run:  git fetch origin CICD2
+      - run: cd Zoomy-Zodiacs; pwd; ls -la;
       - run: git checkout origin CICD2
       - name: Environment
         run: source ./.venv/bin/activiate
