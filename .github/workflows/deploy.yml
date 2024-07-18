@@ -33,6 +33,7 @@ jobs:
       run:
           working-directory: ./Zoomy-Zodiacs
     steps:
+      - run: echo "$HOME/.local/bin" >> $GITHUB_PATH
       - run: git checkout origin/CICD2
       - name: install
         run: pdm install
