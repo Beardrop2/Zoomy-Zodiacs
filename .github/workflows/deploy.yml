@@ -50,7 +50,7 @@ jobs:
       - run: echo "$HOME/.local/bin" >> $GITHUB_PATH
       - name: Run tests
         run: pdm run test || true
-  
+
   run:
     runs-on: self-hosted
     needs: test
