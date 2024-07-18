@@ -20,7 +20,7 @@ test = { cmd = "python -m pytest" }
 
 # Start main, pipe output to a log file, and the pid to pid.txt
 # Bot does not exist yet.
-start = { cmd = "python ./bot/__main__.py > bot.log 2>&1 & echo $! > pid.txt" } 
+start = { cmd = "python ./bot/__main__.py > bot.log 2>&1 & echo $! > pid.txt" }
 stop = { cmd = "kill $(cat pid.txt)"}
 
 [tool.ruff]
