@@ -12,7 +12,7 @@ jobs:
     runs-on: self-hosted
     steps:
       - name: Checkout repository
-        run: git fetch; git checkout -r main; git switch main; git pull
+        run: git fetch; git checkout -r ${GITHUB_REF_NAME}; git switch main; git pull
         # You are now able to use PDM in your workflow
       - name: Environment
         run: source ./.venv/bin/activiate
