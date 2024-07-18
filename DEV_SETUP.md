@@ -154,3 +154,9 @@ pre-commit install
 ```
 
 You can additionally run `pre-commit` without any arguments to run the pre-commit hooks without committing a change
+
+# Ruff - formatting
+
+Ruff should have been installed by pdm earlier, during `pdm install`
+
+It will be run during pre-commit, but you can run `ruff format` from the terminal
