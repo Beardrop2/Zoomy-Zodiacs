@@ -10,8 +10,6 @@ jobs:
   build-and-run:
     runs-on: self-hosted
     steps:
-      - name: Stop bot
-        run: pdm run stop
       - name: Checkout repository
         run: git fetch; git checkout -r main; git switch main; git pull
         # You are now able to use PDM in your workflow
@@ -21,6 +19,8 @@ jobs:
         run: pdm build
       - name: install
         run: pdm install
+      - name: Stop bot # PDM install required before stop script
+        run: pdm run stop
       - name: Run pre-commit hooks
         run: pdm run pre-commit
       - name: Run tests
