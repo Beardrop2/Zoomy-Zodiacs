@@ -5,6 +5,7 @@ on:
   push:
     branches:
       - main
+      - CICD2
 
 jobs:
   build-and-run:
