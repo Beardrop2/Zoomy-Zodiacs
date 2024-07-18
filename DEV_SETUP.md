@@ -16,6 +16,26 @@ Most of the rest of these commands should be run inside the repo folder
 \- [PDM introduction](https://pdm-project.org/en/latest/)
 
 ## Steps
+<!--
+    I've walked through 'Create venv and install dependencies' and 'Enable venv' on a windows system
+    (and probably done the exact steps in 'Install')
+    But I've used the hacky subshell fix for the execution policy
+
+    update this as testing is done (preferably with enough detail to reproduce)
+    TESTED:
+    - Windows
+        - Powershell (pdm 2.16.1 installed with pipx)
+            - Hacky PDM subshell fix for execution policy to enable venv
+
+    UNTESTED:
+    - Windows
+        - Powershell
+            - Enable venv properly
+    - Linux
+        - Bash (probably main case)
+        - Zsh, fish (less common)
+-->
+
 - [Install](#install-pdm)
 - [Create venv and install dependencies](#create-venv-and-install-dependencies)
 - [Enable venv](#enable-venv)
