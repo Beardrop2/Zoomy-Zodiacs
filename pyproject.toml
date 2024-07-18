@@ -6,7 +6,7 @@ authors = [
     { name = "unseeyou", email = "unseeyoubestmod@gmail.com" },
     { name = "pk.kyle" },
     { name = "matt_lock" },
-    { name = "eth47turbo" },
+    { name = "eth47turbo", email = "ethandhunt@gmail.com" },
 ]
 version = "0.1.0"
 requires-python = "==3.12.*"
