@@ -43,6 +43,13 @@ Most of the rest of these commands should be run inside the repo folder
 ### Install PDM
 Installation instructions from the PDM website can be found [here](https://pdm-project.org/en/latest/#installation)
 
+To install PDM using pip:
+
+<!-- Haven't tested this, should work? Might not be added to $PATH on windows? -->
+```sh
+pip install pdm
+```
+
 To install PDM using the setup script,
 
 for linux:
