@@ -18,6 +18,7 @@ Most of the rest of these commands should be run inside the repo folder
 ## Steps
 - [Install](#install-pdm)
 - [Create venv and install dependencies](#create-venv-and-install-dependencies)
+- [Enable venv](#enable-venv)
 
 ### Install PDM
 Installation instructions from the PDM website can be found [here](https://pdm-project.org/en/latest/#installation)
@@ -72,6 +73,35 @@ once pdm is installed, run
 pdm install
 ```
 
-to install the dependencies from the pdm lockfile (this will create a virtual environment in .venv/ if it has not already been created)
+to install the dependencies from the pdm lockfile (this will create a virtual environment named `in-project` in .venv/ if it has not already been created)
 
 this will install `ruff` and `precommit` as well as the dependencies for the bot
+
+### Enable venv
+
+Instructions available [on the pdm website](https://pdm-project.org/en/latest/usage/venv/#activate-a-virtualenv)
+
+To enable the venv,
+
+for bash/csh/zsh:
+
+```
+$ eval $(pdm venv activate in-project)
+(test-project-for-test) $  # Virtualenv entered
+```
+
+for powershell:
+
+```
+PS1> Invoke-Expression (pdm venv activate in-project)
+```
+
+if powershell just prints `C:\Users\...\.venv\Scripts\Activate.ps1`, your [Execution Policy](https:/go.microsoft.com/fwlink/?LinkID=135170) may not allow running scripts with powershell. To confirm, running `& "C:\Users\...\.venv\Scripts\Activate.ps1"` using the outputted path should give an `UnauthorizedAccess` exception
+
+if this happens, you can either change your execution policy, or use pdm to create a subshell:
+
+<!-- this is a hacky workaround, I don't know if it raises issues, please check or add disclaimer -->
+to get a subshell with the environment enabled, run:
+```sh
+PS1> pdm run powershell.exe
+```
