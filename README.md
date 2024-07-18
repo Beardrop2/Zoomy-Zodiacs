@@ -1,3 +1,5 @@
+check [DEV_SETUP.md](DEV_SETUP.md) for instructions to set up the dev environment
+
 # Python Discord Code Jam Repository Template
 
 ## A primer
