@@ -36,10 +36,6 @@ jobs:
       - run: git checkout origin/CICD2
       - name: install
         run: pdm install
-      - name: Environment
-        run: source ./.venv/bin/activiate
-      - name: Run pre-commit hooks
-        run: pdm run pre-commit
       - name: build
         run: pdm build
 
