@@ -161,4 +161,4 @@ You can additionally run `pre-commit` without any arguments to run the pre-commi
 
 Ruff should have been installed by pdm earlier, during `pdm install`
 
-It will be run during pre-commit, but you can run `ruff format` from the terminal
+It will be run during pre-commit, but you can run `ruff format` and `ruff check` from the terminal (`ruff check` reports linting errors, `ruff format` reports and corrects them)
