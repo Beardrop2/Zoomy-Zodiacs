@@ -26,9 +26,9 @@ jobs:
         run: git clone https://github.com/Beardrop2/Zoomy-Zodiacs.git
       - name: wait
         run: sleep 10 # For some reason, the action seems to checkout before the clone is done.
-      - run: cd $(basename ${{ github.repository }} .git);
-      - run: git fetch origin ${{ github.ref_name }};
-      - run: git checkout ${{ github.ref_name }};
+      - run: cd $(basename ${{ github.repository }} .git); pwd;
+      - run:  git fetch origin CICD2
+      - run: git checkout origin CICD2
       - name: Environment
         run: source ./.venv/bin/activiate
       - name: Run pre-commit hooks
