@@ -1,14 +1,28 @@
 [project]
 name = "zoomy-zodiacs"
-version = "0"
+authors = [
+    {name = "Beardrop2", email = "benjamin.ghwik@gmail.com"},
+    {name = "interrrp"},
+    {name = "unseeyou"},
+    {name = "pk.kyle"},
+    {name = "matt_lock"},
+    {name = "eth47turbo"}
+]
+version = "0.1.0"
 requires-python = "==3.12.*"
-dependencies = []
+dependencies = [
+    "pytest>=8.2.2",
+]
 
 [tool.pdm.dev-dependencies]
-dev = ["ruff>=0.5.2", "pre-commit>=3.7.1"]
+dev = ["ruff>=0.5.2", "pre-commit>=3.7.1", "pytest>=8.2.2"]
 
 [tool.pdm.scripts]
-start = { cmd = "python -m bot" }
+test = { cmd = "python -m pytest" }
+
+# Start main, pipe output to a log file, and the pid to pid.txt
+start = { cmd = "python __main__.py > bot.log 2>&1 & echo $! > pid.txt" }
+stop = { cmd = "kill $(cat pid.txt)"}
 
 [tool.ruff]
 # Increase the line length. This breaks PEP8 but it is way easier to work with.
@@ -50,5 +64,15 @@ ignore = [
     "ANN102",
 ]
 
-[tool.pdm]
-distribution = false
+# pyproject.toml
+[tool.pytest.ini_options]
+minversion = "8.2"
+addopts = "-ra -q"
+python_files = "test_*.py"
+testpaths = [
+    "tests"
+]
+
+[build-system]
+requires = ["pdm-backend"]
+build-backend = "pdm.backend"
