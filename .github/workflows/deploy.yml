@@ -12,7 +12,7 @@ jobs:
     runs-on: self-hosted
     steps:
       - name: Checkout repository
-        run: git clone ${{ env.repository_url }};
+        run: git clone https://github.com/Beardrop2/Zoomy-Zodiacs.git
       - run: cd $(basename ${{ github.repository }} .git);
       - run: git fetch origin ${{ github.ref_name }};
       - run: git checkout ${{ github.ref_name }};
