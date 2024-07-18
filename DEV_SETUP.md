@@ -125,3 +125,25 @@ to get a subshell with the environment enabled, run:
 ```sh
 PS1> pdm run powershell.exe
 ```
+
+# Pre-commit - lint before committing
+Pre-commit runs before committing through [git hooks](https://git-scm.com/book/en/v2/Customizing-Git-Git-Hooks)
+
+See [the section in README.md](./README.md#pre-commit-run-linting-before-committing)
+
+The pre-commit configuration is located in .pre-commit-config.yaml
+
+## Steps
+
+<!-- tested on Windows machine with pdm powershell subshell. I can't think of a reason this wouldn't work as long as the pre-commit executable is in path, so I don't think a testing log is necessary -->
+
+- [Install](#install-pre-commit)
+
+## Install pre-commit
+
+To install pre-commit to your git hooks:
+```sh
+pre-commit install
+```
+
+You can additionally run `pre-commit` without any arguments to run the pre-commit hooks without committing a change
