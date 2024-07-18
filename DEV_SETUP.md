@@ -140,6 +140,8 @@ See [the section in README.md](./README.md#pre-commit-run-linting-before-committ
 
 The pre-commit configuration is located in .pre-commit-config.yaml
 
+The pre-commit python package should have been installed (executable on your machine and available on path) by pdm. The install step below refers to installing the git hooks to run before committing according to the pre-commit configuration in .pre-commit-config.yaml
+
 ## Steps
 
 <!-- tested on Windows machine with pdm powershell subshell. I can't think of a reason this wouldn't work as long as the pre-commit executable is in path, so I don't think a testing log is necessary -->
