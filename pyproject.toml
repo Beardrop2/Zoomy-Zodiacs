@@ -13,7 +13,7 @@ requires-python = "==3.12.*"
 dependencies = ["pytest>=8.2.2", "disnake>=2.9.2"]
 
 [tool.pdm.dev-dependencies]
-dev = ["ruff>=0.5.2", "pre-commit>=3.7.1", "pytest>=8.2.2"]
+dev = ["ruff>=0.5.3", "pre-commit>=3.7.1", "pytest>=8.2.2"]
 
 [tool.pdm.scripts]
 test = { cmd = "python -m pytest" }
