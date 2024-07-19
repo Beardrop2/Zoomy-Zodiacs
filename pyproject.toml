@@ -21,10 +21,10 @@ test = { cmd = "python -m pytest" }
 # Start main, pipe output to a log file, and the pid to pid.txt
 # Bot does not exist yet.
 start = { cmd = "python ./bot/__main__.py > bot.log 2>&1 & echo $! > pid.txt" }
-stop = { cmd = "kill $(cat pid.txt)"}
+stop = { cmd = "kill $(cat pid.txt)" }
 
 [tool.ruff]
-# Increase the line length. This breaks PEP8 but it is way easier to work with.
+# Increase the line length. This breaks PEP8, but it is way easier to work with.
 # The original reason for this limit was a standard vim terminal is only 79 characters,
 # but this doesn't really apply anymore.
 line-length = 119
