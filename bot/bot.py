@@ -22,11 +22,13 @@ class Bot(InteractionBot):
 
     def _configure_logging(self) -> None:
         file_handler = logging.FileHandler("zz.log", encoding="utf-8")
-        file_handler.setFormatter(logging.Formatter("%(asctime)s:%(levelname)s:%(name)s: %(message)s"))
+        file_formatter = logging.Formatter("%(asctime)s:%(levelname)s:%(name)s: %(message)s", "%Y-%m-%d:%H:%M:%S")
+        file_handler.setFormatter(file_formatter)
 
         logging.basicConfig(
             format="%(message)s",
             level=logging.INFO,
+            datefmt="%X",
             handlers=[RichHandler(), file_handler],
         )
 
