@@ -33,6 +33,8 @@ jobs:
       run:
           working-directory: ./Zoomy-Zodiacs
     steps:
+      - name: Setup enviornment
+        run: echo "ZZ_DISCORD_BOT_TOKEN=$ZZ_DISCORD_BOT_TOKEN" >> .env
       - run: echo "$HOME/.local/bin" >> $GITHUB_PATH
       - run: git checkout origin/main
       - name: install
