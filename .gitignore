@@ -163,5 +163,5 @@ cython_debug/
 
 # VSCode
 .vscode/
-/bot/.env.old
+/.env.old
 /tags.db
