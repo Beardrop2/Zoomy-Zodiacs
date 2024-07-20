@@ -23,10 +23,11 @@ dev = ["ruff>=0.5.3", "pre-commit>=3.7.1", "pytest>=8.2.2"]
 [tool.pdm.scripts]
 test = { cmd = "python -m pytest" }
 
-# Start main, pipe output to a log file, and the pid to pid.txt
-# Bot does not exist yet.
-start = { cmd = "python -m bot > bot.log 2>&1 & echo $! > pid.txt" }
+start = { cmd = "python -m bot" }
 stop = { cmd = "kill $(cat pid.txt)" }
+
+# Start main, pipe output to a log file, and the pid to pid.txt
+ci = { cmd = "pdm run nohup python -m bot > bot.log 2>&1 & echo $! > pid.txt" }
 
 [tool.ruff]
 # Increase the line length. This breaks PEP8, but it is way easier to work with.

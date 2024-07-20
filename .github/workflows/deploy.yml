@@ -65,4 +65,4 @@ jobs:
       - run: echo "ZZ_DISCORD_BOT_TOKEN=$ZZ_DISCORD_BOT_TOKEN" >> .env
       - run: echo "$HOME/.local/bin" >> $GITHUB_PATH
       - name: Start Bot
-        run: pdm run start
+        run: pdm run ci
