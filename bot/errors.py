@@ -1,2 +1,3 @@
 class DatabaseNotConnectedError(Exception):
-    pass
+    def __str__(self) -> str:
+        return "DatabaseNotConnectedError: Database is not connected"
