@@ -10,7 +10,12 @@ authors = [
 ]
 version = "0.1.0"
 requires-python = "==3.12.*"
-dependencies = ["pytest>=8.2.2", "disnake>=2.9.2"]
+dependencies = [
+    "pytest>=8.2.2",
+    "disnake>=2.9.2",
+    "pydantic-settings>=2.3.4",
+    "rich>=13.7.1",
+]
 
 [tool.pdm.dev-dependencies]
 dev = ["ruff>=0.5.3", "pre-commit>=3.7.1", "pytest>=8.2.2"]
@@ -20,7 +25,7 @@ test = { cmd = "python -m pytest" }
 
 # Start main, pipe output to a log file, and the pid to pid.txt
 # Bot does not exist yet.
-start = { cmd = "python ./bot/__main__.py > bot.log 2>&1 & echo $! > pid.txt" }
+start = { cmd = "python -m bot > bot.log 2>&1 & echo $! > pid.txt" }
 stop = { cmd = "kill $(cat pid.txt)" }
 
 [tool.ruff]
@@ -39,6 +44,9 @@ select = ["ALL"]
 ignore = [
     # Missing docstrings.
     "D100",
+    "D101",
+    "D102",
+    "D103",
     "D104",
     "D105",
     "D106",
@@ -61,6 +69,9 @@ ignore = [
     # Annotations.
     "ANN101",
     "ANN102",
+    # Boolean trap.
+    "FBT001",
+    "FBT002",
 ]
 
 [tool.pytest.ini_options]
