@@ -5,11 +5,11 @@ from disnake.role import Role
 from bot.bot import Bot
 
 
-async def get_greeter_role(inter: disnake.ApplicationCommandInteraction) -> Role:
+async def get_greeter_role(inter: disnake.Interaction) -> Role:
     for role in inter.guild.roles:
         if role.name.lower() == "greeter":
             return role
-    return await inter.guild.create_role("Greeter")
+    return await inter.guild.create_role(name="greeter")
 
 
 class Greetings(Cog):
