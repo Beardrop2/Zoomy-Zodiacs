@@ -22,11 +22,11 @@ class Greetings(Cog):
         async def button_listener(inter: disnake.MessageInteraction) -> None:
             """Listen to button events."""
             greeters_role = await get_greeter_role(inter)
-            match inter.component.custom_id: # TODO: match the original interaction author
+            match inter.component.custom_id:  # TODO: match the original interaction author
                 case "add_greeter":
                     await inter.author.add_roles(greeters_role)
                     await inter.message.edit(
-                        "Click the buttons to no longer be a greeter", # TODO: any better ways to phrase it?
+                        "Click the buttons to no longer be a greeter",  # TODO: any better ways to phrase it?
                         components=[
                             disnake.ui.Button(
                                 label="Remove role Greeter",
