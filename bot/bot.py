@@ -1,11 +1,10 @@
 import logging
 
 import aiosqlite
-from disnake import ApplicationCommandInteraction
-from disnake.ext.commands import InteractionBot, errors
+from disnake.ext.commands import InteractionBot
 from rich.logging import RichHandler
 
-from bot.errors import DatabaseNotConnectedError
+from bot.repositories.tags import SqliteTagRepository, TagRepository
 from bot.settings import Settings
 
 
@@ -18,7 +17,8 @@ class Bot(InteractionBot):
         self._configure_logging()
         self.logger = logging.getLogger("zz")
 
-        self.database: aiosqlite.Connection | None = None
+        self.database_connection: aiosqlite.Connection | None = None
+        self.tag_repository: TagRepository | None = None
 
         self.load_extensions("bot/exts")
 
@@ -36,15 +36,11 @@ class Bot(InteractionBot):
 
     async def connect_to_database(self) -> None:
         # TODO: Use PostgreSQL
-        self.database = aiosqlite.connect(self.settings.database_path)
+        self.database_connection = await aiosqlite.connect(self.settings.database_path)
 
-    async def on_slash_command_error(
-        self,
-        interaction: ApplicationCommandInteraction,
-        exception: errors.CommandError,
-    ) -> None:
-        self.logger.exception(exception)
-        if isinstance(exception, DatabaseNotConnectedError):
-            await interaction.send("It seems that the database is not connected!")
-            return
-        await interaction.send(f"Oops! An error occurred: {exception}")
+        self.tag_repository = SqliteTagRepository(self.database_connection)
+        await self.tag_repository.initialize()
+
+    async def close_database_connection(self) -> None:
+        if self.database_connection is not None:
+            await self.database_connection.close()
