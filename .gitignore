@@ -163,3 +163,5 @@ cython_debug/
 
 # VSCode
 .vscode/
+/bot/.env.old
+/bot/users.db

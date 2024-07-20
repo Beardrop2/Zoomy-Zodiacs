@@ -15,6 +15,8 @@ dependencies = [
     "disnake>=2.9.2",
     "pydantic-settings>=2.3.4",
     "rich>=13.7.1",
+    "aiosqlite>=0.20.0",
+    "chardet>=5.2.0",
 ]
 
 [tool.pdm.dev-dependencies]
@@ -39,9 +41,9 @@ target-version = "py312"
 # Automatically fix auto-fixable issues.
 fix = true
 # Enable all linting rules.
-select = ["ALL"]
+lint.select = ["ALL"]
 # Ignore some of the most obnoxious linting errors.
-ignore = [
+lint.ignore = [
     # Missing docstrings.
     "D100",
     "D101",
