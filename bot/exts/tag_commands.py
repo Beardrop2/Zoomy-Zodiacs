@@ -34,15 +34,15 @@ class Tags(Cog):
         self.bot = bot
 
     @slash_command(name="add_tag", description="Add a user tag to yourself")
-    async def ping(self, interaction: disnake.AppCommandInteraction, tags: TAGS) -> None:
-        await interaction.response.send_message(f"Added tag `{tags}` to `{interaction.user.id}`")
-        tags = "!" + tags
+    async def ping(self, interaction: disnake.AppCommandInteraction, tag: TAGS) -> None:
+        await interaction.response.send_message(f"Added tag `{tag}` to `{interaction.user.id}`")
+        tag = "!" + tag
         conn = await aiosqlite.connect("tags.db")
         await conn.execute("CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, tags TEXT)")
         try:
-            await conn.execute("INSERT INTO users VALUES (?, ?)", (interaction.user.id, tags))
+            await conn.execute("INSERT INTO users VALUES (?, ?)", (interaction.user.id, tag))
         except aiosqlite.IntegrityError:
-            await conn.execute("UPDATE users SET tags = tags || ? WHERE id = ?", (tags, interaction.user.id))
+            await conn.execute("UPDATE users SET tags = tags || ? WHERE id = ?", (tag, interaction.user.id))
         await conn.commit()
         await conn.close()
 
