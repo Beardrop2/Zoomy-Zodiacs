@@ -4,7 +4,7 @@ import aiosqlite
 import disnake
 from disnake.ext.commands import Bot, Cog, slash_command
 
-TAGS = typing.Literal[
+Tags = typing.Literal[
     "algos-and-data-structs",
     "async-and-concurrency",
     "c-extensions",
@@ -34,7 +34,7 @@ class Tags(Cog):
         self.bot = bot
 
     @slash_command(name="add_tag", description="Add a user tag to yourself")
-    async def add_tag(self, interaction: disnake.AppCommandInteraction, tag: TAGS) -> None:
+    async def add_tag(self, interaction: disnake.AppCommandInteraction, tag: Tags) -> None:
         await interaction.response.send_message(f"Added tag `{tag}` to `{interaction.user.id}`")
         tag = "!" + tag
         conn = await aiosqlite.connect("tags.db")
