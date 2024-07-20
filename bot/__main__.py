@@ -1,2 +1,4 @@
+from bot.bot import Bot
+
 if __name__ == "__main__":
-    print("Hello, world!")
+    Bot().run()
