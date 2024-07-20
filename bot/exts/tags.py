@@ -38,7 +38,6 @@ class Tags(Cog):
     @slash_command(description="Add a user tag to yourself")
     async def add_tag(self, interaction: disnake.AppCommandInteraction, tag: TagType) -> None:
         if self.bot.tag_repository is None:
-            # TODO: Handle errors like this with a message
             raise DatabaseNotConnectedError
 
         await self.bot.tag_repository.add(interaction.author.id, tag)
