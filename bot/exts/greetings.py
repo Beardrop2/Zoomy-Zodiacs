@@ -26,7 +26,7 @@ class Greetings(Cog):
                 case "add_greeter":
                     await inter.author.add_roles(greeters_role)
                     await inter.message.edit(
-                        "Click the buttons to no longer be a greeter",  # TODO: any better ways to phrase it?
+                        "Click the button to discontinue acting as a greeter",
                         components=[
                             disnake.ui.Button(
                                 label="Remove role Greeter",
