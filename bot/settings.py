@@ -5,3 +5,4 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", env_prefix="ZZ_")
 
     discord_bot_token: str
+    database_path: str = "zz.db"

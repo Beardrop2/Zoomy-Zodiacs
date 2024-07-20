@@ -163,5 +163,4 @@ cython_debug/
 
 # VSCode
 .vscode/
-/.env.old
-/tags.db
+zz.db
