@@ -1,13 +1,9 @@
-import contextlib
 import logging
 
 import aiosqlite
-import disnake
-from disnake import ApplicationCommandInteraction
-from disnake.ext.commands import InteractionBot, errors
+from disnake.ext.commands import InteractionBot
 from rich.logging import RichHandler
 
-import bot.errors
 from bot.repositories.tags import SqliteTagRepository, TagRepository
 from bot.settings import Settings
 
@@ -48,19 +44,3 @@ class Bot(InteractionBot):
     async def close_database_connection(self) -> None:
         if self.database_connection is not None:
             await self.database_connection.close()
-
-    async def on_slash_command_error(
-        self,
-        interaction: ApplicationCommandInteraction,
-        exception: errors.CommandError,
-    ) -> None:
-        self.logger.exception(exception)
-        with contextlib.suppress(disnake.errors.InteractionResponded):
-            await interaction.response.defer()
-        if isinstance(exception, bot.errors.DatabaseNotConnectedError):
-            await interaction.followup.send("Database is not connected", ephemeral=True)
-            return
-        if isinstance(exception, errors.BotMissingPermissions):
-            await interaction.followup.send(f"Sorry! I don't have permission to do that [{exception}]", ephemeral=True)
-            return
-        await interaction.followup.send(f"Oops! An error occurred: {exception}", ephemeral=True)
