@@ -29,7 +29,7 @@ class Greetings(Cog):
             if inter.author != inter.message.interaction.user:
                 await inter.followup.send("This is not your button", ephemeral=True)
                 return
-            match inter.component.custom_id:  # TODO: match the original interaction author
+            match inter.component.custom_id:
                 case "add_greeter":
                     await inter.author.add_roles(greeters_role)
                     await inter.message.edit(
