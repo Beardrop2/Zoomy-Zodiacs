@@ -37,7 +37,7 @@ class Tags(Cog):
     async def ping(self, interaction: disnake.AppCommandInteraction, tags: TAGS) -> None:
         await interaction.response.send_message(f"Added tag `{tags}` to `{interaction.user.id}`")
         tags = "!" + tags
-        conn = await aiosqlite.connect("users.db")
+        conn = await aiosqlite.connect("tags.db")
         await conn.execute("CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, tags TEXT)")
         try:
             await conn.execute("INSERT INTO users VALUES (?, ?)", (interaction.user.id, tags))
