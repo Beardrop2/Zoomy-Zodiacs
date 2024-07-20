@@ -21,6 +21,7 @@ class Greetings(Cog):
         @self.bot.listen("on_button_click")
         async def button_listener(inter: disnake.MessageInteraction) -> None:
             """Listen to button events."""
+            await inter.response.defer()
             greeters_role = await get_greeter_role(inter)
             match inter.component.custom_id:  # TODO: match the original interaction author
                 case "add_greeter":
@@ -47,6 +48,8 @@ class Greetings(Cog):
                             ),
                         ],
                     )
+                case _:
+                    await inter.followup.reply("Invalid button", ephemeral=True)
             await inter.response.defer()
 
     @slash_command(description="To become a greeter")
