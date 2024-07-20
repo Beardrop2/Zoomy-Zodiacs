@@ -26,6 +26,9 @@ class Greetings(Cog):
             with contextlib.suppress(disnake.errors.InteractionResponded):
                 await inter.response.defer()
             greeters_role = await get_greeter_role(inter)
+            if inter.author != inter.message.interaction.user:
+                await inter.followup.reply("This is not your button", ephemeral=True)
+                return
             match inter.component.custom_id:  # TODO: match the original interaction author
                 case "add_greeter":
                     await inter.author.add_roles(greeters_role)
