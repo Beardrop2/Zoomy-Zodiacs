@@ -28,7 +28,7 @@ test = { cmd = "python -m pytest" }
 
 start = { cmd = "python -m bot" }
 stop = { cmd = "kill $(cat pid.txt)" }
-ci = { pdm run nohup python -m bot > bot.log 2>&1 & echo $! > pid.txt }
+ci = { cmd = "pdm run nohup python -m bot > bot.log 2>&1 & echo $! > pid.txt" }
 
 [tool.ruff]
 # Increase the line length. This breaks PEP8, but it is way easier to work with.
