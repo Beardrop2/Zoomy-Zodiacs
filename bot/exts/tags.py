@@ -1,6 +1,5 @@
 import typing
 
-import aiosqlite
 import disnake
 from disnake.ext.commands import Cog, slash_command
 
@@ -38,22 +37,12 @@ class Tags(Cog):
 
     @slash_command(description="Add a user tag to yourself")
     async def add_tag(self, interaction: disnake.AppCommandInteraction, tag: TagType) -> None:
-        db = self.bot.database
-        if db is None:
+        if self.bot.tag_repository is None:
             # TODO: Handle errors like this with a message
             raise DatabaseNotConnectedError
 
-        # TODO: Move user setup somewhere else
-        tag_text = "!" + tag
-        async with db:
-            await db.execute("CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, tags TEXT)")
-            try:
-                await db.execute("INSERT INTO users VALUES (?, ?)", (interaction.user.id, tag_text))
-            except aiosqlite.IntegrityError:
-                await db.execute("UPDATE users SET tags = tags || ? WHERE id = ?", (tag_text, interaction.user.id))
-            await db.commit()
-
-        await interaction.response.send_message(f"Added tag `{tag}` to `{interaction.user.id}`")
+        await self.bot.tag_repository.add(interaction.author.id, tag)
+        await interaction.response.send_message(f"Added tag `{tag}` to {interaction.user}")
 
 
 def setup(bot: Bot) -> None:
