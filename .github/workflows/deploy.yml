@@ -59,6 +59,8 @@ jobs:
     defaults:
       run:
           working-directory: ./Zoomy-Zodiacs
+    env:
+      ZZ_DISCORD_BOT_TOKEN: ${{ secrets.ZZ_DISCORD_BOT_TOKEN }}
     steps:
       - run: echo "ZZ_DISCORD_BOT_TOKEN=$ZZ_DISCORD_BOT_TOKEN" >> .env
       - run: echo "$HOME/.local/bin" >> $GITHUB_PATH
