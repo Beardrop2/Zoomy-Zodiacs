@@ -25,6 +25,7 @@ class Bot(InteractionBot):
         logging.basicConfig(
             format="%(message)s",
             level=logging.INFO,
+            datefmt="%X",
             handlers=[RichHandler(), file_handler],
         )
 
