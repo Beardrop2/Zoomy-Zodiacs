@@ -1,6 +1,6 @@
 import logging
-from typing import override
 
+import aiosqlite
 from disnake.ext.commands import InteractionBot
 from rich.logging import RichHandler
 
@@ -16,6 +16,8 @@ class Bot(InteractionBot):
         self._configure_logging()
         self.logger = logging.getLogger("zz")
 
+        self.database: aiosqlite.Connection | None = None
+
         self.load_extensions("bot/exts")
 
     def _configure_logging(self) -> None:
@@ -28,9 +30,6 @@ class Bot(InteractionBot):
             handlers=[RichHandler(), file_handler],
         )
 
-    @override
-    def run(self, token: str | None = None) -> None:
-        if token is None:
-            token = self.settings.discord_bot_token
-
-        super().run(token)
+    async def connect_to_database(self) -> None:
+        # TODO: Use PostgreSQL
+        self.database = aiosqlite.connect(self.settings.database_path)

@@ -1,0 +1,2 @@
+class DatabaseNotConnectedError(Exception):
+    pass

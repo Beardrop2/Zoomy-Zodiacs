@@ -77,6 +77,10 @@ lint.ignore = [
     "FBT002",
 ]
 
+[tool.pyright]
+reportUnusedCallResult = "none"
+reportUnknownVariableType = "none"
+
 [tool.pytest.ini_options]
 minversion = "8.2"
 addopts = "-ra -q"

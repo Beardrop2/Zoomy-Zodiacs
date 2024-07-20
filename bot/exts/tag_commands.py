@@ -2,9 +2,12 @@ import typing
 
 import aiosqlite
 import disnake
-from disnake.ext.commands import Bot, Cog, slash_command
+from disnake.ext.commands import Cog, slash_command
 
-Tags = typing.Literal[
+from bot.bot import Bot
+from bot.errors import DatabaseNotConnectedError
+
+TagType = typing.Literal[
     "algos-and-data-structs",
     "async-and-concurrency",
     "c-extensions",
@@ -33,18 +36,24 @@ class Tags(Cog):
     def __init__(self, bot: Bot) -> None:
         self.bot = bot
 
-    @slash_command(name="add_tag", description="Add a user tag to yourself")
-    async def add_tag(self, interaction: disnake.AppCommandInteraction, tag: Tags) -> None:
+    @slash_command(description="Add a user tag to yourself")
+    async def add_tag(self, interaction: disnake.AppCommandInteraction, tag: TagType) -> None:
+        db = self.bot.database
+        if db is None:
+            # TODO: Handle errors like this with a message
+            raise DatabaseNotConnectedError
+
+        # TODO: Move user setup somewhere else
+        tag_text = "!" + tag
+        async with db:
+            await db.execute("CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, tags TEXT)")
+            try:
+                await db.execute("INSERT INTO users VALUES (?, ?)", (interaction.user.id, tag_text))
+            except aiosqlite.IntegrityError:
+                await db.execute("UPDATE users SET tags = tags || ? WHERE id = ?", (tag_text, interaction.user.id))
+            await db.commit()
+
         await interaction.response.send_message(f"Added tag `{tag}` to `{interaction.user.id}`")
-        tag = "!" + tag
-        conn = await aiosqlite.connect("tags.db")
-        await conn.execute("CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, tags TEXT)")
-        try:
-            await conn.execute("INSERT INTO users VALUES (?, ?)", (interaction.user.id, tag))
-        except aiosqlite.IntegrityError:
-            await conn.execute("UPDATE users SET tags = tags || ? WHERE id = ?", (tag, interaction.user.id))
-        await conn.commit()
-        await conn.close()
 
 
 def setup(bot: Bot) -> None:
