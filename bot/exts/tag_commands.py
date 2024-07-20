@@ -40,7 +40,6 @@ class Tags(Cog):
     async def add_tag(self, interaction: disnake.AppCommandInteraction, tag: TagType) -> None:
         db = self.bot.database
         if db is None:
-            # TODO: Handle errors like this with a message
             raise DatabaseNotConnectedError
 
         # TODO: Move user setup somewhere else

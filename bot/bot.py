@@ -1,9 +1,11 @@
 import logging
 
 import aiosqlite
-from disnake.ext.commands import InteractionBot
+from disnake import ApplicationCommandInteraction
+from disnake.ext.commands import InteractionBot, errors
 from rich.logging import RichHandler
 
+from bot.errors import DatabaseNotConnectedError
 from bot.settings import Settings
 
 
@@ -35,3 +37,14 @@ class Bot(InteractionBot):
     async def connect_to_database(self) -> None:
         # TODO: Use PostgreSQL
         self.database = aiosqlite.connect(self.settings.database_path)
+
+    async def on_slash_command_error(
+        self,
+        interaction: ApplicationCommandInteraction,
+        exception: errors.CommandError,
+    ) -> None:
+        self.logger.exception(exception)
+        if isinstance(exception, DatabaseNotConnectedError):
+            await interaction.send("It seems that the database is not connected!")
+            return
+        await interaction.send(f"Oops! An error occurred: {exception}")
