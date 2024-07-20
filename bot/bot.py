@@ -60,4 +60,7 @@ class Bot(InteractionBot):
         if isinstance(exception, bot.errors.DatabaseNotConnectedError):
             await interaction.followup.send("Database is not connected", ephemeral=True)
             return
+        if isinstance(exception, errors.BotMissingPermissions):
+            await interaction.followup.send(f"Sorry! I don't have permission to do that [{exception}]", ephemeral=True)
+            return
         await interaction.followup.send(f"Oops! An error occurred: {exception}", ephemeral=True)
