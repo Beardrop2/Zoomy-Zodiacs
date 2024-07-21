@@ -106,7 +106,7 @@ class SqliteTagRepository(TagRepository):
             return suggested_friends(result, 10)
 
 
-def suggested_friends(result: list[tuple[int, str]], amt: int) -> dict[int, list[str]]:
+async def suggested_friends(result: list[tuple[int, str]], amt: int) -> dict[int, list[str]]:
     # Group the results by user_id
     suggestions: defaultdict[int, list[str]] = defaultdict(list)
     for suggested_user_id, tag in result:
