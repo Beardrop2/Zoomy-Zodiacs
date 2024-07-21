@@ -76,6 +76,7 @@ lint.ignore = [
 [tool.pyright]
 reportUnusedCallResult = "none"
 reportUnknownVariableType = "none"
+reportUnknownMemberType = "none"
 
 [tool.pytest.ini_options]
 minversion = "8.2"

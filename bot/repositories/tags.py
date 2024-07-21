@@ -18,6 +18,9 @@ class TagRepository(ABC):
     @abstractmethod
     async def remove(self, user_id: int, tag: str) -> None: ...
 
+    @abstractmethod
+    async def get_friend_suggestions(self, user_id: int) -> dict[int, list[str]]: ...
+
 
 @dataclass
 class SqliteTagRepository(TagRepository):
@@ -53,3 +56,32 @@ class SqliteTagRepository(TagRepository):
         async with self.database.cursor() as cursor:
             await cursor.execute("DELETE FROM tags WHERE user_id = ? AND tag = ?", (user_id, tag))
             await self.database.commit()
+
+    @override
+    async def get_friend_suggestions(self, user_id: int) -> dict[int, list[str]]:
+        async with self.database.cursor() as cursor:
+            user_tags = await self.get(user_id)
+
+            if not user_tags:
+                return {}
+
+            # Find other users who have at least one tag in common
+            query = """
+                SELECT t2.user_id, t2.tag
+                FROM tags t1
+                JOIN tags t2 ON t1.tag = t2.tag
+                WHERE t1.user_id = ? AND t2.user_id != t1.user_id
+                ORDER BY t2.user_id
+            """
+            await cursor.execute(query, (user_id,))
+
+            # Group the results by user_id
+            suggestions: dict[int, list[str]] = {}
+            result: list[tuple[int, str]] = await cursor.fetchall()  # type: ignore[reportAssignmentType]
+            for suggested_user_id, tag in result:
+                if suggested_user_id not in suggestions:
+                    suggestions[suggested_user_id] = []
+                suggestions[suggested_user_id].append(tag)
+
+            # Limit to top 10 users with most common tags
+            return dict(sorted(suggestions.items(), key=lambda x: len(x[1]), reverse=True)[:10])
