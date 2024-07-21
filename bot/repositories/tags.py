@@ -90,15 +90,3 @@ async def suggested_friends(result: list[tuple[int, str]], amt: int) -> dict[int
 
     # Limit to top 10 users with most common tags
     return dict(sorted(suggestions.items(), key=lambda x: len(x[1]), reverse=True)[:amt])
-
-
-async def suggested_friends_old(result: list[tuple[int, str]], amt: int) -> dict[int, list[str]]:
-    # Group the results by user_id
-    suggestions: dict[int, list[str]] = {}
-    for suggested_user_id, tag in result:
-        if suggested_user_id not in suggestions:
-            suggestions[suggested_user_id] = []
-        suggestions[suggested_user_id].append(tag)
-
-    # Limit to top {amt} users with most common tags
-    return dict(sorted(suggestions.items(), key=lambda x: len(x[1]), reverse=True)[:amt])
