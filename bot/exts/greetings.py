@@ -1,9 +1,7 @@
 import contextlib
 
 import disnake
-
-from disnake.ext.commands import Cog, slash_command, BotMissingPermissions
-
+from disnake.ext.commands import BotMissingPermissions, Cog, slash_command
 from disnake.role import Role
 
 from bot.bot import Bot
