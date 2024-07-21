@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from collections import defaultdict
 from dataclasses import dataclass
 from typing import override
 
@@ -75,13 +76,29 @@ class SqliteTagRepository(TagRepository):
             """
             await cursor.execute(query, (user_id,))
 
-            # Group the results by user_id
-            suggestions: dict[int, list[str]] = {}
             result: list[tuple[int, str]] = await cursor.fetchall()  # type: ignore[reportAssignmentType]
-            for suggested_user_id, tag in result:
-                if suggested_user_id not in suggestions:
-                    suggestions[suggested_user_id] = []
-                suggestions[suggested_user_id].append(tag)
 
             # Limit to top 10 users with most common tags
-            return dict(sorted(suggestions.items(), key=lambda x: len(x[1]), reverse=True)[:10])
+            return suggested_friends(result, 10)
+
+
+async def suggested_friends(result: list[tuple[int, str]], amt: int) -> dict[int, list[str]]:
+    # Group the results by user_id
+    suggestions: defaultdict[int, list[str]] = defaultdict(list)
+    for suggested_user_id, tag in result:
+        suggestions[suggested_user_id].append(tag)
+
+    # Limit to top 10 users with most common tags
+    return dict(sorted(suggestions.items(), key=lambda x: len(x[1]), reverse=True)[:amt])
+
+
+async def suggested_friends_old(result: list[tuple[int, str]], amt: int) -> dict[int, list[str]]:
+    # Group the results by user_id
+    suggestions: dict[int, list[str]] = {}
+    for suggested_user_id, tag in result:
+        if suggested_user_id not in suggestions:
+            suggestions[suggested_user_id] = []
+        suggestions[suggested_user_id].append(tag)
+
+    # Limit to top {amt} users with most common tags
+    return dict(sorted(suggestions.items(), key=lambda x: len(x[1]), reverse=True)[:amt])
