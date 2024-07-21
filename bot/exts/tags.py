@@ -1,34 +1,9 @@
-import typing
-
 from disnake import AppCmdInter, Color, Embed
 from disnake.ext.commands import Cog, slash_command
 
 from bot.bot import Bot
 from bot.errors import DatabaseNotConnectedError
-
-TagType = typing.Literal[
-    "algos-and-data-structs",
-    "async-and-concurrency",
-    "c-extensions",
-    "cybersecurity",
-    "databases",
-    "data-science-and-ai",
-    "discord-bots",
-    "editors-ides",
-    "esoteric-python",
-    "game-development",
-    "media-processing",
-    "microcontrollers",
-    "networks",
-    "packaging-and-distribution",
-    "software-architecture",
-    "web-development",
-    "tools-and-devops",
-    "type-hinting",
-    "unit-testing",
-    "unix",
-    "user-interfaces",
-]
+from bot.repositories.tags import TagType
 
 
 class Tags(Cog):
