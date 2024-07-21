@@ -1,13 +1,17 @@
 import contextlib
 
 import disnake
-from disnake.ext.commands import Cog, slash_command
+
+from disnake.ext.commands import Cog, slash_command, BotMissingPermissions
+
 from disnake.role import Role
 
 from bot.bot import Bot
 
 
 async def get_greeter_role(inter: disnake.Interaction) -> Role:
+    if inter.guild is None:
+        raise BotMissingPermissions(missing_permissions="manage_guild")
     for role in inter.guild.roles:
         if role.name.lower() == "greeter":
             return role
@@ -26,6 +30,8 @@ class Greetings(Cog):
             with contextlib.suppress(disnake.errors.InteractionResponded):
                 await inter.response.defer()
             greeters_role = await get_greeter_role(inter)
+            if greeters_role is None:
+                raise BotMissingPermissions(missing_permissions="manage_roles")
             if inter.author != inter.message.interaction.user:
                 await inter.followup.send("This is not your button", ephemeral=True)
                 return
@@ -62,6 +68,8 @@ class Greetings(Cog):
     async def greeters(self, inter: disnake.ApplicationCommandInteraction) -> None:
         """Add or remove user's Greeter role."""
         greeter_role = await get_greeter_role(inter)
+        if inter.author is None:
+            raise BotMissingPermissions
         if greeter_role in inter.author.roles:
             await inter.response.send_message(
                 "Click the buttons to no longer be a greeter",
