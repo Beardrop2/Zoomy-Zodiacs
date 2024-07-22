@@ -17,8 +17,12 @@ class ErrorEmbed(Embed):
         title = "😬 Oops! An error occurred."
 
         description = f"```\n{error}\n```" if not isinstance(error, str) else error
+        footer_text = (
+            "Please report this issue on [our GitHub repository](https://github.com/Beardrop2/Zoomy-Zodiacs)."
+        )
 
-        super().__init__(title=title, description=description, color=color)
+        e = super().__init__(title=title, description=description, color=color)
+        e.set_footer(text=footer_text)
 
 
 class ReportButton(Button):
@@ -61,7 +65,6 @@ class ErrorHandler(Cog):
             return
 
         embed = ErrorEmbed(error=error)
-        embed.set_footer(text="Please report this issue on our GitHub repository.")
 
         if isinstance(error, DatabaseNotConnectedError):
             embed.description = "Database not connected"
