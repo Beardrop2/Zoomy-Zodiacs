@@ -17,10 +17,11 @@ dependencies = [
     "rich>=13.7.1",
     "aiosqlite>=0.20.0",
     "chardet>=5.2.0",
+    "pytest-asyncio>=0.23.8",
 ]
 
 [tool.pdm.dev-dependencies]
-dev = ["ruff>=0.5.3", "pre-commit>=3.7.1", "pytest>=8.2.2"]
+dev = ["ruff>=0.5.3", "pre-commit>=3.7.1", "pytest>=8.2.2", "pytest-asyncio>=0.23.8", "hypothesis>=6.108.2"]
 
 [tool.pdm.scripts]
 test = { cmd = "python -m pytest" }
@@ -73,16 +74,25 @@ lint.ignore = [
     "FBT002",
 ]
 
+[tool.ruff.lint.per-file-ignores]
+"tests/*.py" = ["S101"]
+
 [tool.pyright]
 reportUnusedCallResult = "none"
 reportUnknownVariableType = "none"
+reportUnknownMemberType = "none"
 reportImplicitStringConcatenation = "none"
+
 
 [tool.pytest.ini_options]
 minversion = "8.2"
 addopts = "-ra -q"
 python_files = "test_*.py"
 testpaths = ["tests"]
+pythonpath = [
+  "bot"
+]
+
 
 [build-system]
 requires = ["pdm-backend"]
