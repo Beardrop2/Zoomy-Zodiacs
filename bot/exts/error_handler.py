@@ -9,23 +9,28 @@ from bot.errors import DatabaseNotConnectedError
 
 
 class ErrorEmbed(Embed):
-    def __init__(
-        self,
-        error: Exception | str,
-    ) -> None:
-        color = Color.red()
-        title = "😬 Oops! An error occurred."
-
-        description = f"```\n{error}\n```" if not isinstance(error, str) else error
-        footer_text = (
-            "Please report this issue on [our GitHub repository](https://github.com/Beardrop2/Zoomy-Zodiacs)."
+    def __init__(self, error: Exception | str, *, internal: bool = True) -> None:
+        super().__init__(
+            title="😬 Oops! An error occurred.",
+            color=Color.red(),
         )
-        description += f"\n\n{footer_text}"
 
-        super().__init__(title=title, description=description, color=color)
+        self.internal = internal
+        self.set_error(error)
+
+    def set_tip(self, tip: str) -> None:
+        self.set_footer(text=f"💡 {tip}")
+
+    def set_error(self, error: Exception | str) -> None:
+        self.description = f"```\n{error}\n```" if not isinstance(error, str) else error
+
+        if self.internal:
+            # fmt: off
+            self.description += "\n-# Please report this issue on [our GitHub repository](https://github.com/Beardrop2/Zoomy-Zodiacs)."
+            # fmt: on
 
 
-class ReportButton(Button):
+class ReportButton(Button[None]):
     def __init__(self) -> None:
         super().__init__(
             label="Report Error",
@@ -49,31 +54,20 @@ class ErrorHandler(Cog):
         with suppress(InteractionResponded):
             await interaction.response.defer()
 
-        if isinstance(error, BotMissingPermissions):
-            embed = ErrorEmbed(
-                error="I don't have the correct permissions to do that.",
-            )
-
-            embed.set_footer(text="💡 Please ensure my role is high enough in the role hierarchy.")
-
-            await interaction.followup.send(
-                embed=embed,
-                components=[
-                    ReportButton(),
-                ],
-            )
-            return
-
-        embed = ErrorEmbed(error=error)
+        embed = ErrorEmbed(error)
 
         if isinstance(error, DatabaseNotConnectedError):
-            embed.description = "Database not connected"
+            embed.internal = True
+            embed.set_error("Database not connected")
+
+        if isinstance(error, BotMissingPermissions):
+            embed.internal = False
+            embed.set_error("I don't have the correct permissions to do that.")
+            embed.set_tip("Ensure my role is high enough in the role hierarchy.")
 
         await interaction.followup.send(
             embed=embed,
-            components=[
-                ReportButton(),
-            ],
+            components=[ReportButton()] if embed.internal else [],
         )
 
 

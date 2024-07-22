@@ -5,7 +5,7 @@
 groups = ["default", "dev"]
 strategy = ["cross_platform", "inherit_metadata"]
 lock_version = "4.4.2"
-content_hash = "sha256:81a9d5911d9211cfd0133a70c7fb9f7a0b3c4fcd1f4c5a9de4d60e1af9f5924c"
+content_hash = "sha256:cf5c1abeac7b50c01553b3ca085d07f236939bb6204084453b3a4217412c8147"
 
 [[package]]
 name = "aiohttp"
@@ -83,7 +83,7 @@ name = "attrs"
 version = "23.2.0"
 requires_python = ">=3.7"
 summary = "Classes Without Boilerplate"
-groups = ["default"]
+groups = ["default", "dev"]
 files = [
     {file = "attrs-23.2.0-py3-none-any.whl", hash = "sha256:99b87a485a5820b23b879f04c2305b44b951b502fd64be915879d77a7e8fc6f1"},
     {file = "attrs-23.2.0.tar.gz", hash = "sha256:935dc3b529c262f6cf76e50877d35a4bd3c1de194fd41f47a2b7ae8f19971f30"},
@@ -182,6 +182,21 @@ files = [
     {file = "frozenlist-1.4.1-cp312-cp312-win_amd64.whl", hash = "sha256:64536573d0a2cb6e625cf309984e2d873979709f2cf22839bf2d61790b448ad5"},
     {file = "frozenlist-1.4.1-py3-none-any.whl", hash = "sha256:04ced3e6a46b4cfffe20f9ae482818e34eba9b5fb0ce4056e4cc9b6e212d09b7"},
     {file = "frozenlist-1.4.1.tar.gz", hash = "sha256:c037a86e8513059a2613aaba4d817bb90b9d9b6b69aace3ce9c877e8c8ed402b"},
+]
+
+[[package]]
+name = "hypothesis"
+version = "6.108.3"
+requires_python = ">=3.8"
+summary = "A library for property-based testing"
+groups = ["dev"]
+dependencies = [
+    "attrs>=22.2.0",
+    "sortedcontainers<3.0.0,>=2.1.0",
+]
+files = [
+    {file = "hypothesis-6.108.3-py3-none-any.whl", hash = "sha256:fcc6864881d6ceab6924d77d81e3ed43fb820452293e4e07a2c81e0a95a65185"},
+    {file = "hypothesis-6.108.3.tar.gz", hash = "sha256:095f2b049fba33f7920889e513b675dbf112bb740bc8d1ea433fdf7fd23cf37e"},
 ]
 
 [[package]]
@@ -435,7 +450,7 @@ name = "pytest-asyncio"
 version = "0.23.8"
 requires_python = ">=3.8"
 summary = "Pytest support for asyncio"
-groups = ["dev"]
+groups = ["default", "dev"]
 dependencies = [
     "pytest<9,>=7.0.0",
 ]
@@ -512,6 +527,16 @@ files = [
     {file = "ruff-0.5.3-py3-none-win_amd64.whl", hash = "sha256:cbaec2ddf4f78e5e9ecf5456ea0f496991358a1d883862ed0b9e947e2b6aea93"},
     {file = "ruff-0.5.3-py3-none-win_arm64.whl", hash = "sha256:05fbd2cb404775d6cd7f2ff49504e2d20e13ef95fa203bd1ab22413af70d420b"},
     {file = "ruff-0.5.3.tar.gz", hash = "sha256:2a3eb4f1841771fa5b67a56be9c2d16fd3cc88e378bd86aaeaec2f7e6bcdd0a2"},
+]
+
+[[package]]
+name = "sortedcontainers"
+version = "2.4.0"
+summary = "Sorted Containers -- Sorted List, Sorted Dict, Sorted Set"
+groups = ["dev"]
+files = [
+    {file = "sortedcontainers-2.4.0-py2.py3-none-any.whl", hash = "sha256:a163dcaede0f1c021485e957a39245190e74249897e2ae4b2aa38595db237ee0"},
+    {file = "sortedcontainers-2.4.0.tar.gz", hash = "sha256:25caa5a06cc30b6b83d11423433f65d1f9d76c4c6a0c90e3379eaa43b9bfdb88"},
 ]
 
 [[package]]

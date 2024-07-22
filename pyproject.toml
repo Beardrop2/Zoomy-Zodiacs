@@ -21,7 +21,13 @@ dependencies = [
 ]
 
 [tool.pdm.dev-dependencies]
-dev = ["ruff>=0.5.3", "pre-commit>=3.7.1", "pytest>=8.2.2", "pytest-asyncio>=0.23.8", "hypothesis>=6.108.2"]
+dev = [
+    "ruff>=0.5.3",
+    "pre-commit>=3.7.1",
+    "pytest>=8.2.2",
+    "pytest-asyncio>=0.23.8",
+    "hypothesis>=6.108.2",
+]
 
 [tool.pdm.scripts]
 test = { cmd = "python -m pytest" }
@@ -89,9 +95,7 @@ minversion = "8.2"
 addopts = "-ra -q"
 python_files = "test_*.py"
 testpaths = ["tests"]
-pythonpath = [
-  "bot"
-]
+pythonpath = ["bot"]
 
 
 [build-system]
