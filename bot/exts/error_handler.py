@@ -20,9 +20,9 @@ class ErrorEmbed(Embed):
         footer_text = (
             "Please report this issue on [our GitHub repository](https://github.com/Beardrop2/Zoomy-Zodiacs)."
         )
+        description += f"\n\n{footer_text}"
 
-        e = super().__init__(title=title, description=description, color=color)
-        e.set_footer(text=footer_text)
+        super().__init__(title=title, description=description, color=color)
 
 
 class ReportButton(Button):
