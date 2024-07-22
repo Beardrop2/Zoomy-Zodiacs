@@ -103,7 +103,7 @@ class SqliteTagRepository(TagRepository):
             result: list[tuple[int, str]] = await cursor.fetchall()  # type: ignore[reportAssignmentType]
 
             # Limit to top 10 users with most common tags
-            return suggested_friends(result, 10)
+            return await suggested_friends(result, 10)
 
 
 async def suggested_friends(result: list[tuple[int, str]], amt: int) -> dict[int, list[str]]:
