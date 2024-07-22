@@ -44,7 +44,7 @@ class ErrorHandler(Cog):
         await interaction.followup.send(
             embed=embed,
             components=[
-                Button(emoji="🚩", label="Report", url="https://github.com/Beardrop2/Zoomy-Zodiacs/issues/new"),
+                Button(emoji="🚩", label="Report Error", url="https://github.com/Beardrop2/Zoomy-Zodiacs/issues/new"),
             ],
         )
 
