@@ -1,3 +1,5 @@
-class DatabaseNotConnectedError(Exception):
-    def __str__(self) -> str:
-        return "DatabaseNotConnectedError: Database is not connected"
+from disnake.ext.commands import CommandError
+
+
+class DatabaseNotConnectedError(CommandError):
+    pass
