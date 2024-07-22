@@ -81,6 +81,8 @@ lint.ignore = [
 reportUnusedCallResult = "none"
 reportUnknownVariableType = "none"
 reportUnknownMemberType = "none"
+reportImplicitStringConcatenation = "none"
+
 
 [tool.pytest.ini_options]
 minversion = "8.2"

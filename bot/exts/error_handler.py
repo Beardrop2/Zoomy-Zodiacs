@@ -1,10 +1,11 @@
 from contextlib import suppress
 
 from disnake import ApplicationCommandInteraction, Color, Embed, InteractionResponded
-from disnake.ext.commands import Cog, CommandError
+from disnake.ext.commands import BotMissingPermissions, Cog, CommandError
 from disnake.ui.button import Button
 
 from bot.bot import Bot
+from bot.errors import DatabaseNotConnectedError
 
 
 class ErrorHandler(Cog):
@@ -22,12 +23,23 @@ class ErrorHandler(Cog):
         with suppress(InteractionResponded):
             await interaction.response.defer()
 
+        if isinstance(error, BotMissingPermissions):
+            await interaction.followup.send(
+                "Sorry, I don't have permission to do that."
+                "\n-# 💡 Ensure I have the correct permissions and try again.",
+                ephemeral=True,
+            )
+            return
+
         embed = Embed(
             title="😬 Oops! An error occurred.",
             description=f"```\n{error}\n```",
             color=Color.red(),
         )
         embed.set_footer(text="Please report this issue on our GitHub repository.")
+
+        if isinstance(error, DatabaseNotConnectedError):
+            embed.description = "Database not connected"
 
         await interaction.followup.send(
             embed=embed,
