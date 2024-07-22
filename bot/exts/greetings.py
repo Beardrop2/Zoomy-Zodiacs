@@ -3,6 +3,7 @@ from disnake.ext.commands import Cog, bot_has_permissions, guild_only, slash_com
 from disnake.ui import Button, View, button
 
 from bot.bot import Bot
+from bot.errors import UserNotMemberError
 
 GREETER_ROLE_NAME = "Greeter"
 
@@ -28,7 +29,7 @@ class GreetingRoleView(View):
         if not isinstance(member, Member):
             # The author is a member since the command is guild-only, so this
             # should never happen
-            return
+            raise UserNotMemberError
 
         greeter_role = await get_greeter_role(guild)
         has_greeter_role = greeter_role in member.roles
