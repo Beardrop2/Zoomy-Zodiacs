@@ -8,6 +8,28 @@ from bot.bot import Bot
 from bot.errors import DatabaseNotConnectedError
 
 
+class ErrorEmbed(Embed):
+    def __init__(
+        self,
+        error: Exception | str,
+    ) -> None:
+        color = Color.red()
+        title = "😬 Oops! An error occurred."
+
+        description = f"```\n{error}\n```" if not isinstance(error, str) else error
+
+        super().__init__(title=title, description=description, color=color)
+
+
+class ReportButton(Button):
+    def __init__(self) -> None:
+        super().__init__(
+            label="Report Error",
+            url="https://github.com/Beardrop2/Zoomy-Zodiacs/issues/new",
+            emoji="🚩",
+        )
+
+
 class ErrorHandler(Cog):
     def __init__(self, bot: Bot) -> None:
         self.bot = bot
@@ -24,18 +46,21 @@ class ErrorHandler(Cog):
             await interaction.response.defer()
 
         if isinstance(error, BotMissingPermissions):
+            embed = ErrorEmbed(
+                error="I don't have the correct permissions to do that.",
+            )
+
+            embed.set_footer(text="💡 Please ensure my role is high enough in the role hierarchy.")
+
             await interaction.followup.send(
-                "Sorry, I don't have permission to do that."
-                "\n-# 💡 Ensure I have the correct permissions and try again.",
-                ephemeral=True,
+                embed=embed,
+                components=[
+                    ReportButton(),
+                ],
             )
             return
 
-        embed = Embed(
-            title="😬 Oops! An error occurred.",
-            description=f"```\n{error}\n```",
-            color=Color.red(),
-        )
+        embed = ErrorEmbed(error=error)
         embed.set_footer(text="Please report this issue on our GitHub repository.")
 
         if isinstance(error, DatabaseNotConnectedError):
@@ -44,7 +69,7 @@ class ErrorHandler(Cog):
         await interaction.followup.send(
             embed=embed,
             components=[
-                Button(emoji="🚩", label="Report Error", url="https://github.com/Beardrop2/Zoomy-Zodiacs/issues/new"),
+                ReportButton(),
             ],
         )
 
