@@ -1,37 +1,86 @@
+from string import ascii_lowercase
+
+import aiosqlite
 import pytest
 from hypothesis import assume, given
 from hypothesis import strategies as st
-from repositories.tags import suggested_friends
+from repositories.tags import SqliteTagRepository, group_griends, suggested_friends
+
+characters = st.sampled_from(ascii_lowercase)
+# more likely to be desired duplicates than with st.text()
 
 
 @pytest.mark.asyncio()
 async def test_suggested_friends_basic_1() -> None:
-    friends = [(5, "a")] * 5 + [(3, "b")] * 4
-    res = await suggested_friends(friends, 1)
-    assert res == {5: ["a"] * 5}
+    friends = [(1, "a"), (2, "a"), (2, "b")]
+    res = await suggested_friends(friends, 1, {"a"})
+    assert res == {1: ["a"]}
 
 
 @pytest.mark.asyncio()
 async def test_suggested_friends_basic_2() -> None:
-    friends = [(1, "a"), (1, "b"), (1, "c"), (2, "c"), (2, "b"), (3, "a")]
-    res = await suggested_friends(friends, 2)
-    assert res == {1: ["a", "b", "c"], 2: ["c", "b"]}
+    friends = [(1, "a"), (1, "b"), (1, "c"), (2, "c"), (2, "b"), (3, "agf")]
+    res = await suggested_friends(friends, 2, {"b", "c"})
+    assert res == {1: ["a", "b", "c"], 2: ["b", "c"]}
 
 
 @pytest.mark.asyncio()
-@given(st.lists(st.tuples(st.text(), st.text())), st.integers())
-async def test_suggested_friends_equal(xs: list[tuple[int, str]], amt: int) -> None:
+@given(st.lists(st.tuples(st.integers(), characters)))
+async def test_group_griends_nonempty(xs: list[tuple[int, str]]) -> None:
+    res = await group_griends(xs)
+    assert all(len(v) > 0 for v in res.values())
+    # verify that x > 0 in a/x in suggested_friends, avoiding ZeroDivisionError
+
+
+@pytest.mark.asyncio()
+@given(st.lists(st.tuples(st.integers(), characters)), st.integers(), st.lists(characters))
+async def test_suggested_friends_runs(xs: list[tuple[int, str]], amt: int, user_tags: list[str]) -> None:
     assume(amt > 0)
-    assert await suggested_friends(xs, amt) == await suggested_friends_old(xs, amt)
+    await suggested_friends(xs, amt, user_tags)
 
 
-async def suggested_friends_old(result: list[tuple[int, str]], amt: int) -> dict[int, list[str]]:
-    # Group the results by user_id
-    suggestions: dict[int, list[str]] = {}
-    for suggested_user_id, tag in result:
-        if suggested_user_id not in suggestions:
-            suggestions[suggested_user_id] = []
-        suggestions[suggested_user_id].append(tag)
+@pytest.mark.asyncio()
+async def test_full_tag_suggestions_1() -> None:
+    database_connection = await aiosqlite.connect("test.db")
 
-    # Limit to top {amt} users with most common tags
-    return dict(sorted(suggestions.items(), key=lambda x: len(x[1]), reverse=True)[:amt])
+    repos = SqliteTagRepository(database_connection)
+    await repos.initialize()
+
+    data = [(1, "a"), (2, "a"), (3, "b")]
+    for id, tag in data:
+        await repos.add(id, tag)
+
+    res = await repos.get_friend_suggestions(1)
+
+    for id, tag in data:
+        await repos.remove(id, tag)
+
+    await database_connection.close()
+    assert res == {2: ["a"]}
+
+
+@pytest.mark.asyncio()
+async def test_full_tag_suggestions_2() -> None:
+    database_connection = await aiosqlite.connect("test.db")
+
+    repos = SqliteTagRepository(database_connection)
+    await repos.initialize()
+
+    data = [(1, "a"), (2, "a"), (3, "b"), (4, "a")]
+
+    for id, tag in data:
+        await repos.add(id, tag)
+
+    await repos.add(1, "a")
+    await repos.add(2, "a")
+    await repos.add(3, "b")
+    await repos.add(4, "a")
+
+    res = await repos.get_friend_suggestions(1)
+
+    for id, tag in data:
+        await repos.remove(id, tag)
+
+    await database_connection.close()
+
+    assert res == {2: ["a"], 4: ["a"]}

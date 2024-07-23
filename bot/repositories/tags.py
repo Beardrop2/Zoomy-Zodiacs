@@ -101,16 +101,46 @@ class SqliteTagRepository(TagRepository):
             await cursor.execute(query, (user_id,))
 
             result: list[tuple[int, str]] = await cursor.fetchall()  # type: ignore[reportAssignmentType]
+            matching = tuple(sorted({user for (user, _) in result}))
+            matching = str(matching).replace(",", "") if len(matching) == 1 else str(matching)
 
-            # Limit to top 10 users with most common tags
-            return suggested_friends(result, 10)
+            # Find all tags of said other users who have at least one tag in common
+
+            # TODO: verify whether this is volnerable to SQL injection and fix
+            # ids should be ints that aren't created by users directly, no strings, so should be safe
+            query_any = f"""
+                SELECT t.user_id, t.tag
+                FROM tags t
+                WHERE t.user_id in {matching}
+                ORDER BY t.user_id
+            """  # noqa: S608
 
 
-async def suggested_friends(result: list[tuple[int, str]], amt: int) -> dict[int, list[str]]:
+            await cursor.execute(query_any)
+
+            result_any_tags: list[tuple[int, str]] = await cursor.fetchall()  # type: ignore[reportAssignmentType
+
+            # Limit to top 10 users with best ratio of tags in common
+            return await suggested_friends(result_any_tags, 10, user_tags)
+
+
+async def group_griends(result: list[tuple[int, str]]) -> dict[int, set[str]]:
     # Group the results by user_id
-    suggestions: defaultdict[int, list[str]] = defaultdict(list)
+    suggestions: defaultdict[int, set[str]] = defaultdict(set)
     for suggested_user_id, tag in result:
-        suggestions[suggested_user_id].append(tag)
+        suggestions[suggested_user_id].add(tag)
+    return dict(suggestions)
 
-    # Limit to top 10 users with most common tags
-    return dict(sorted(suggestions.items(), key=lambda x: len(x[1]), reverse=True)[:amt])
+
+async def suggested_friends(result: list[tuple[int, str]], amt: int, user_tags: list[str]) -> dict[int, list[str]]:
+    suggestions = await group_griends(result)
+    user_tags = set(user_tags)
+
+    def key(tags: set[str]) -> float:
+        """Use ratio of tags in common:total tags to prevent gaming the system by having every tag."""
+        return len(user_tags & tags) / len(user_tags | tags)
+
+    # Limit to top {amt}} users with most common tags
+    res = dict(sorted(suggestions.items(), key=lambda x: key(x[1]), reverse=True)[:amt])
+    return {k: sorted(v) for k, v in res.items()}
+    # should we adjust to return set instead of list?
