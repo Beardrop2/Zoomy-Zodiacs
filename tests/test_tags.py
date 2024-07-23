@@ -71,11 +71,6 @@ async def test_full_tag_suggestions_2() -> None:
     for id, tag in data:
         await repos.add(id, tag)
 
-    await repos.add(1, "a")
-    await repos.add(2, "a")
-    await repos.add(3, "b")
-    await repos.add(4, "a")
-
     res = await repos.get_friend_suggestions(1)
 
     for id, tag in data:
