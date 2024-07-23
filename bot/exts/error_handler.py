@@ -1,7 +1,7 @@
 from contextlib import suppress
 
 from disnake import ApplicationCommandInteraction, Color, Embed, InteractionResponded
-from disnake.ext.commands import BotMissingPermissions, Cog, CommandError
+from disnake.ext.commands import BotMissingPermissions, Cog, CommandError, NoPrivateMessage
 from disnake.ui.button import Button
 
 from bot.bot import Bot
@@ -64,6 +64,11 @@ class ErrorHandler(Cog):
             embed.internal = False
             embed.set_error("I don't have the correct permissions to do that.")
             embed.set_tip("Ensure my role is high enough in the role hierarchy.")
+
+        if isinstance(error, NoPrivateMessage):
+            embed.internal = False
+            embed.set_error("This command can't be used in DMs.")
+            embed.set_tip("Use this command in a server.")
 
         await interaction.followup.send(
             embed=embed,

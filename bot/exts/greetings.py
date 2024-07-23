@@ -1,95 +1,65 @@
-import contextlib
-
-import disnake
-from disnake.ext.commands import BotMissingPermissions, Cog, slash_command
-from disnake.role import Role
+from disnake import AppCmdInter, ButtonStyle, Guild, Member, MessageInteraction, Role
+from disnake.ext.commands import Cog, bot_has_permissions, guild_only, slash_command
+from disnake.ui import Button, View, button
 
 from bot.bot import Bot
+from bot.errors import UserNotMemberError
+
+GREETER_ROLE_NAME = "Greeter"
 
 
-async def get_greeter_role(inter: disnake.Interaction) -> Role:
-    if inter.guild is None:
-        raise BotMissingPermissions(missing_permissions="manage_guild")
-    for role in inter.guild.roles:
-        if role.name.lower() == "greeter":
+async def get_greeter_role(guild: Guild) -> Role:
+    for role in guild.roles:
+        if role.name.lower() == GREETER_ROLE_NAME.lower():
             return role
-    return await inter.guild.create_role(name="greeter")
+
+    return await guild.create_role(name=GREETER_ROLE_NAME)
+
+
+class GreetingRoleView(View):
+    @button(label="Be a greeter", style=ButtonStyle.green)
+    async def add_or_remove_role(self, button: Button[None], inter: MessageInteraction) -> None:
+        guild = inter.guild
+        if guild is None:
+            # The command requires the Manage Guild and Manage Roles permissions,
+            # so this should never happen
+            return
+
+        member = inter.author
+        if not isinstance(member, Member):
+            # The author is a member since the command is guild-only, so this
+            # should never happen
+            raise UserNotMemberError
+
+        greeter_role = await get_greeter_role(guild)
+        has_greeter_role = greeter_role in member.roles
+
+        if has_greeter_role:
+            await member.remove_roles(greeter_role)
+            button.label = "Be a greeter"
+            button.style = ButtonStyle.green
+
+        if not has_greeter_role:
+            await member.add_roles(greeter_role)
+            button.label = "Stop being a greeter"
+            button.style = ButtonStyle.red
+
+        await inter.response.edit_message(view=self)
 
 
 class Greetings(Cog):
     """Cog for introducing friends to new members."""
 
-    def __init__(self, bot: Bot) -> None:
-        self.bot = bot
-
-        @self.bot.listen("on_button_click")
-        async def button_listener(inter: disnake.MessageInteraction) -> None:
-            """Listen to button events."""
-            with contextlib.suppress(disnake.errors.InteractionResponded):
-                await inter.response.defer()
-            greeters_role = await get_greeter_role(inter)
-            if greeters_role is None:
-                raise BotMissingPermissions(missing_permissions="manage_roles")
-            if inter.author != inter.message.interaction.user:
-                await inter.followup.send("This is not your button", ephemeral=True)
-                return
-            match inter.component.custom_id:
-                case "add_greeter":
-                    await inter.author.add_roles(greeters_role)
-                    await inter.message.edit(
-                        "Click the button to discontinue acting as a greeter",
-                        components=[
-                            disnake.ui.Button(
-                                label="Remove role Greeter",
-                                style=disnake.ButtonStyle.danger,
-                                custom_id="remove_greeter",
-                            ),
-                        ],
-                    )
-                case "remove_greeter":
-                    await inter.author.remove_roles(greeters_role)
-                    await inter.message.edit(
-                        "Click the buttons to become a greeter",
-                        components=[
-                            disnake.ui.Button(
-                                label="Add role Greeter",
-                                style=disnake.ButtonStyle.success,
-                                custom_id="add_greeter",
-                            ),
-                        ],
-                    )
-                case _:
-                    await inter.followup.send("Invalid button", ephemeral=True)
-            await inter.response.defer()
-
-    @slash_command(description="To become a greeter")
-    async def greeters(self, inter: disnake.ApplicationCommandInteraction) -> None:
-        """Add or remove user's Greeter role."""
-        greeter_role = await get_greeter_role(inter)
-        if inter.author is None:
-            raise BotMissingPermissions
-        if greeter_role in inter.author.roles:
-            await inter.response.send_message(
-                "Click the buttons to no longer be a greeter",
-                components=[
-                    disnake.ui.Button(
-                        label="Remove role Greeter",
-                        style=disnake.ButtonStyle.danger,
-                        custom_id="remove_greeter",
-                    ),
-                ],
-            )
-        else:
-            await inter.response.send_message(
-                "Click the buttons to become a greeter",
-                components=[
-                    disnake.ui.Button(
-                        label="Add role Greeter",
-                        style=disnake.ButtonStyle.success,
-                        custom_id="add_greeter",
-                    ),
-                ],
-            )
+    @bot_has_permissions(manage_guild=True, manage_roles=True)
+    @guild_only()
+    @slash_command()
+    async def greeters(self, inter: AppCmdInter) -> None:
+        """Add or remove your Greeter role."""
+        await inter.response.send_message(
+            content="Click the button to manage your greeter role",
+            view=GreetingRoleView(),
+            ephemeral=True,
+        )
 
 
 def setup(bot: Bot) -> None:
