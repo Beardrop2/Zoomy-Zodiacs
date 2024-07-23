@@ -79,6 +79,7 @@ lint.ignore = [
     "FBT001",
     "FBT002",
 ]
+lint.pydocstyle.convention = "google"
 
 [tool.ruff.lint.per-file-ignores]
 "tests/*.py" = ["S101"]
