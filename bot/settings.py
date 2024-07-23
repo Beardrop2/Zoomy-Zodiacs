@@ -13,7 +13,7 @@ class Settings(BaseSettings):
 
     Attributes:
         discord_bot_token: The Discord bot token. You may retrieve this from the
-            "Bot" tab of your Discord application.
+                           "Bot" tab of your Discord application.
         database_path: The path to the SQLite database.
     """
 

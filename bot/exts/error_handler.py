@@ -9,6 +9,14 @@ from bot.errors import DatabaseNotConnectedError
 
 
 class ErrorEmbed(Embed):
+    """An embed holding error information.
+
+    Attributes:
+        internal: Whether the error is internal (unfixable by the user). This
+                  attribute determines whether the report details are shown in
+                  the description.
+    """
+
     def __init__(self, error: Exception | str, *, internal: bool = True) -> None:
         super().__init__(
             title="😬 Oops! An error occurred.",
