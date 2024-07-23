@@ -14,7 +14,7 @@ class Bot(InteractionBot):
 
         self.settings = Settings()  # pyright: ignore[reportCallIssue]
 
-        self._configure_logging()
+        Bot._configure_logging()
         self.logger = logging.getLogger("zz")
 
         self.database_connection: aiosqlite.Connection | None = None
@@ -22,7 +22,8 @@ class Bot(InteractionBot):
 
         self.load_extensions("bot/exts")
 
-    def _configure_logging(self) -> None:
+    @staticmethod
+    def _configure_logging() -> None:
         file_handler = logging.FileHandler("zz.log", encoding="utf-8")
         file_formatter = logging.Formatter(
             "%(asctime)s:%(levelname)s:%(name)s: %(message)s",
