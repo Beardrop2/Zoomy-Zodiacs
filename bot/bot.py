@@ -14,7 +14,7 @@ class Bot(InteractionBot):
 
         self.settings = Settings()  # pyright: ignore[reportCallIssue]
 
-        self._configure_logging()
+        Bot._configure_logging()
         self.logger = logging.getLogger("zz")
 
         self.database_connection: aiosqlite.Connection | None = None
