@@ -43,7 +43,7 @@ class Tags(Cog):
 
     @tag.sub_command()
     async def suggest_friends(self, interaction: AppCmdInter) -> None:
-        """Suggest friends for you based on your tags"""
+        """Suggest friends for you based on your tags."""
 
         await interaction.response.defer()
 
