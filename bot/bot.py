@@ -8,35 +8,35 @@ from bot.repositories.tags import SqliteTagRepository, TagRepository
 from bot.settings import Settings
 
 
+def configure_logging() -> None:
+    file_handler = logging.FileHandler("zz.log", encoding="utf-8")
+    file_formatter = logging.Formatter(
+        "%(asctime)s:%(levelname)s:%(name)s: %(message)s",
+        "%Y-%m-%d:%H:%M:%S",
+    )
+    file_handler.setFormatter(file_formatter)
+
+    logging.basicConfig(
+        format="%(message)s",
+        level=logging.INFO,
+        datefmt="%X",
+        handlers=[RichHandler(), file_handler],
+    )
+
+
 class Bot(InteractionBot):
     def __init__(self) -> None:
         super().__init__()
 
         self.settings = Settings()  # pyright: ignore[reportCallIssue]
 
-        Bot._configure_logging()
+        configure_logging()
         self.logger = logging.getLogger("zz")
 
         self.database_connection: aiosqlite.Connection | None = None
         self.tag_repository: TagRepository | None = None
 
         self.load_extensions("bot/exts")
-
-    @staticmethod
-    def _configure_logging() -> None:
-        file_handler = logging.FileHandler("zz.log", encoding="utf-8")
-        file_formatter = logging.Formatter(
-            "%(asctime)s:%(levelname)s:%(name)s: %(message)s",
-            "%Y-%m-%d:%H:%M:%S",
-        )
-        file_handler.setFormatter(file_formatter)
-
-        logging.basicConfig(
-            format="%(message)s",
-            level=logging.INFO,
-            datefmt="%X",
-            handlers=[RichHandler(), file_handler],
-        )
 
     async def connect_to_database(self) -> None:
         # TODO: Use PostgreSQL
