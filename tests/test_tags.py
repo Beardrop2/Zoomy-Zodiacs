@@ -108,4 +108,3 @@ async def test_suggested_friends_suggestion_ratio() -> None:
 
     res = await suggest_friends(data, 1, {"a", "b", "c"})
     assert res == {2: ["b", "c", "d"]}
-
