@@ -52,16 +52,16 @@ async def test_full_tag_suggestions_1() -> None:
     assert res == {2: ["a"]}
 
 
-@pytest.mark.asyncio
+@pytest.mark.asyncio()
 @given(
     st.lists(st.tuples(st.text(), st.text())),
     st.integers(min_value=1),
-    st.lists(characters)
+    st.lists(characters),
 )
 async def test_suggested_friends_deterministic(
     xs: list[tuple[str, str]],
     amt: int,
-    user_tags: list[str]
+    user_tags: list[str],
 ) -> None:
     assume(amt > 0)
     result1 = await suggest_friends(xs, amt, user_tags)
