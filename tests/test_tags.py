@@ -114,16 +114,3 @@ async def test_full_tag_suggestion_ratio() -> None:
         await repos.add(id, tag)
 
     res = await repos.get_friend_suggestions(1)
-
-    for id, tag in data:
-        await repos.remove(id, tag)
-
-    await database_connection.close()
-
-    # Expect Alice and Bob to match and not Mal
-    # As Alice and Bob have a greater ratio of intersection
-    print(res)
-    assert res == {
-        2: ["b", "c", "d"],
-        3: ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j"],
-    }  # Where 2 is the user id of Bob

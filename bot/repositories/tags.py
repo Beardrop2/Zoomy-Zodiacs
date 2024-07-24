@@ -31,24 +31,67 @@ TagType = Literal[
 
 
 class TagRepository(ABC):
-    @abstractmethod
-    async def initialize(self) -> None: ...
+    """Abstract base class for tag repositories.
+
+    This is used for friend suggestions. See `bot.exts.tags` for the slash
+    commands that leverage this.
+    """
 
     @abstractmethod
-    async def add(self, user_id: int, tag: TagType) -> None: ...
+    async def initialize(self) -> None:
+        """Initialize the tag repository.
+
+        For databases, this means creating any tables or schemas.
+        """
 
     @abstractmethod
-    async def get(self, user_id: int) -> list[str]: ...
+    async def add(self, user_id: int, tag: TagType) -> None:
+        """Add a tag to a user.
+
+        Args:
+            user_id: The user's Discord ID.
+            tag: The tag to add.
+        """
 
     @abstractmethod
-    async def remove(self, user_id: int, tag: TagType) -> None: ...
+    async def get(self, user_id: int) -> list[str]:
+        """Get all the tags of a user.
+
+        Args:
+            user_id: The user's Discord ID.
+
+        Returns:
+            A list of the user's tags.
+        """
 
     @abstractmethod
-    async def get_friend_suggestions(self, user_id: int) -> dict[int, list[str]]: ...
+    async def remove(self, user_id: int, tag: TagType) -> None:
+        """Remove a tag from a user.
+
+        This does nothing if the user doesn't have the specified tag.
+
+        Args:
+            user_id: The user's Discord ID.
+            tag: The tag to remove.
+        """
+
+    @abstractmethod
+    async def get_friend_suggestions(self, user_id: int) -> dict[int, list[str]]:
+        """Suggest friends for a user based on their tags.
+
+        Args:
+            user_id: The user's Discord ID.
+
+        Returns:
+            A dictionary mapping suggested user IDs to the tags they have in
+            common with the user.
+        """
 
 
 @dataclass
 class SqliteTagRepository(TagRepository):
+    """A tag repository that uses SQLite to store data."""
+
     database: aiosqlite.Connection
 
     @override

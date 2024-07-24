@@ -21,7 +21,13 @@ dependencies = [
 ]
 
 [tool.pdm.dev-dependencies]
-dev = ["ruff>=0.5.3", "pre-commit>=3.7.1", "pytest>=8.2.2", "pytest-asyncio>=0.23.8", "hypothesis>=6.108.2"]
+dev = [
+    "ruff>=0.5.3",
+    "pre-commit>=3.7.1",
+    "pytest>=8.2.2",
+    "pytest-asyncio>=0.23.8",
+    "hypothesis>=6.108.2",
+]
 
 [tool.pdm.scripts]
 test = { cmd = "python -m pytest" }
@@ -52,6 +58,7 @@ lint.ignore = [
     "D106",
     "D107",
     # Docstring whitespace.
+    "D202",
     "D203",
     "D213",
     # Docstring punctuation.
@@ -73,6 +80,7 @@ lint.ignore = [
     "FBT001",
     "FBT002",
 ]
+lint.pydocstyle.convention = "google"
 
 [tool.ruff.format]
 exclude = ["test_*.py"]
@@ -92,9 +100,7 @@ minversion = "8.2"
 addopts = "-ra -q"
 python_files = "test_*.py"
 testpaths = ["tests"]
-pythonpath = [
-  "bot"
-]
+pythonpath = ["bot"]
 
 
 [build-system]
