@@ -52,6 +52,23 @@ async def test_full_tag_suggestions_1() -> None:
     assert res == {2: ["a"]}
 
 
+@pytest.mark.asyncio
+@given(
+    st.lists(st.tuples(st.text(), st.text())),
+    st.integers(min_value=1),
+    st.lists(characters)
+)
+async def test_suggested_friends_deterministic(
+    xs: list[tuple[str, str]],
+    amt: int,
+    user_tags: list[str]
+) -> None:
+    assume(amt > 0)
+    result1 = await suggest_friends(xs, amt, user_tags)
+    result2 = await suggest_friends(xs, amt, user_tags)
+    assert result1 == result2, "The suggest_friends function should be consistent."
+
+
 @pytest.mark.asyncio()
 async def test_full_tag_suggestions_2() -> None:
     database_connection = await aiosqlite.connect("test.db")
