@@ -92,25 +92,20 @@ async def test_full_tag_suggestions_2() -> None:
 
 
 @pytest.mark.asyncio()
-async def test_full_tag_suggestion_ratio() -> None:
-    database_connection = await aiosqlite.connect("test.db")
+async def test_suggested_friends_suggestion_ratio() -> None:
 
-    repos = SqliteTagRepository(database_connection)
-    await repos.initialize()
 
     # user 1: Alice has tag a, b, and c
     # user 2: Bob has tag b, c, and d
     # user 3: Mal has tags a, b, c, d, e, f, g, h, i, j
     data = [
-        (1, "a"),
-        (1, "b"),
-        (1, "c"),
+
         (2, "b"),
         (2, "c"),
         (2, "d"),
     ] + [(3, t) for t in "abcdefghij"]
 
-    for id, tag in data:
-        await repos.add(id, tag)
 
-    res = await repos.get_friend_suggestions(1)
+    res = await suggest_friends(data, 1, {"a", "b", "c"})
+    assert res == {2: ["b", "c", "d"]}
+
