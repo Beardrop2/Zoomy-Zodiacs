@@ -58,6 +58,7 @@ lint.ignore = [
     "D106",
     "D107",
     # Docstring whitespace.
+    "D202",
     "D203",
     "D213",
     # Docstring punctuation.
@@ -79,6 +80,7 @@ lint.ignore = [
     "FBT001",
     "FBT002",
 ]
+lint.pydocstyle.convention = "google"
 
 [tool.ruff.lint.per-file-ignores]
 "tests/*.py" = ["S101"]

@@ -13,16 +13,20 @@ class Tags(Cog):
     @slash_command(description="Manage tags")
     async def tag(self, _: AppCmdInter) -> None: ...
 
-    @tag.sub_command(description="Add a user tag to yourself")
+    @tag.sub_command()
     async def add(self, interaction: AppCmdInter, tag: TagType) -> None:
+        """Add a user tag to yourself."""
+
         if self.bot.tag_repository is None:
             raise DatabaseNotConnectedError
 
         await self.bot.tag_repository.add(interaction.author.id, tag)
         await interaction.response.send_message(f"Added tag `{tag}` to {interaction.user}", ephemeral=True)
 
-    @tag.sub_command(description="Remove a user tag from yourself")
+    @tag.sub_command()
     async def remove(self, interaction: AppCmdInter, tag: TagType) -> None:
+        """Remove a user tag from yourself."""
+
         tag_repo = self.bot.tag_repository
         if tag_repo is None:
             raise DatabaseNotConnectedError
@@ -37,8 +41,10 @@ class Tags(Cog):
         await tag_repo.remove(user_id, tag)
         await interaction.response.send_message(f"✅ Removed tag `{tag}` from {interaction.user}", ephemeral=True)
 
-    @tag.sub_command(description="Suggest friends for you based on your tags")
+    @tag.sub_command()
     async def suggest_friends(self, interaction: AppCmdInter) -> None:
+        """Suggest friends for you based on your tags."""
+
         await interaction.response.defer()
 
         user_id = interaction.user.id

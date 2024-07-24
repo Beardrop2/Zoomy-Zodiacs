@@ -2,8 +2,8 @@ from disnake.ext.commands import CommandError
 
 
 class DatabaseNotConnectedError(CommandError):
-    pass
+    """Raised when the bot is not connected to the database."""
 
 
 class UserNotMemberError(CommandError):
-    pass
+    """Raised when `Interaction.author` is not a `Member`."""
