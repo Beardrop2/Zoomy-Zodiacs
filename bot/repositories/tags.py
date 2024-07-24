@@ -90,41 +90,26 @@ class SqliteTagRepository(TagRepository):
             if not user_tags:
                 return {}
 
-            # Find other users who have at least one tag in common
             query = """
-                SELECT t2.user_id, t2.tag
-                FROM tags t1
-                JOIN tags t2 ON t1.tag = t2.tag
-                WHERE t1.user_id = ? AND t2.user_id != t1.user_id
-                ORDER BY t2.user_id
-            """
-            await cursor.execute(query, (user_id,))
-
-            result: list[tuple[int, str]] = await cursor.fetchall()  # type: ignore[reportAssignmentType]
-            matching = tuple(sorted({user for (user, _) in result}))
-            matching = str(matching).replace(",", "") if len(matching) == 1 else str(matching)
-
-            # Find all tags of said other users who have at least one tag in common
-
-            # TODO: verify whether this is volnerable to SQL injection and fix
-            # ids should be ints that aren't created by users directly, no strings, so should be safe
-            query_any = f"""
                 SELECT t.user_id, t.tag
                 FROM tags t
-                WHERE t.user_id in {matching}
-                ORDER BY t.user_id
-            """  # noqa: S608
-
-
-            await cursor.execute(query_any)
+                WHERE t.user_id IN (
+                    SELECT t2.user_id
+                    FROM tags t1
+                    JOIN tags t2 ON t1.tag = t2.tag
+                    WHERE t1.user_id = ? AND t2.user_id != t1.user_id
+                )
+                ORDER BY t.user_id;
+                """
+            await cursor.execute(query, (user_id,))
 
             result_any_tags: list[tuple[int, str]] = await cursor.fetchall()  # type: ignore[reportAssignmentType
 
             # Limit to top 10 users with best ratio of tags in common
-            return await suggested_friends(result_any_tags, 10, user_tags)
+            return await suggest_friends(result_any_tags, 10, user_tags)
 
 
-async def group_griends(result: list[tuple[int, str]]) -> dict[int, set[str]]:
+async def group_friends(result: list[tuple[int, str]]) -> dict[int, set[str]]:
     # Group the results by user_id
     suggestions: defaultdict[int, set[str]] = defaultdict(set)
     for suggested_user_id, tag in result:
@@ -132,8 +117,8 @@ async def group_griends(result: list[tuple[int, str]]) -> dict[int, set[str]]:
     return dict(suggestions)
 
 
-async def suggested_friends(result: list[tuple[int, str]], amt: int, user_tags: list[str]) -> dict[int, list[str]]:
-    suggestions = await group_griends(result)
+async def suggest_friends(result: list[tuple[int, str]], amt: int, user_tags: list[str]) -> dict[int, list[str]]:
+    suggestions = await group_friends(result)
     user_tags = set(user_tags)
 
     def key(tags: set[str]) -> float:
