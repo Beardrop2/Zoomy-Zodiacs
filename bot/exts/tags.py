@@ -1,4 +1,4 @@
-from disnake import AppCmdInter, Color, Embed
+from disnake import AppCmdInter, Color, Embed, Member
 from disnake.ext.commands import Cog, slash_command
 
 from bot.bot import Bot
@@ -69,6 +69,37 @@ class Tags(Cog):
         embed = Embed(title="🫂 Friend suggestions", description=response, color=Color.blue())
 
         await interaction.followup.send(embed=embed, ephemeral=True)
+
+    @tag.sub_command()
+    async def info(self, interaction: AppCmdInter, member: Member) -> None:
+        """View tags and info of given member."""
+
+        tag_repo = self.bot.tag_repository
+        if not tag_repo:
+            raise DatabaseNotConnectedError
+        tag_list = await tag_repo.get(member.id)
+        name = member.name
+        if member.nick:
+            name = f"{member.nick} ({name})"
+        # [1:] to remove the @everyone in the roles list
+        info_dict = {
+            "**Member Info**": " ",
+            "Joined:": f"<t:{int(member.joined_at.timestamp())}:R>",
+            "Roles:": ", ".join(role.mention for role in member.roles[1:]),
+            "Tags:": ", ".join(f"`{tag}`" for tag in tag_list),
+        }
+        content = ""
+        for key, value in info_dict.items():
+            if value != "":
+                content += f"{key} {value}\n"
+            else:
+                content += f"{key} None\n"
+        user_info = Embed(
+            title=name,
+            description=content,
+        )
+        user_info.set_thumbnail(member.display_avatar.url)
+        await interaction.send(embed=user_info, allowed_mentions=False)
 
 
 def setup(bot: Bot) -> None:
