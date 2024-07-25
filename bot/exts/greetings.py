@@ -1,6 +1,6 @@
-from disnake import AppCmdInter, ButtonStyle, Guild, Member, MessageInteraction, Role
+from disnake import AppCmdInter, ButtonStyle, Guild, Member, MessageInteraction, Role, ui
 from disnake.ext.commands import Cog, bot_has_permissions, guild_only, slash_command
-from disnake.ui import Button, View, button
+from disnake.ui import Button, View
 
 from bot.bot import Bot
 from bot.errors import UserNotMemberError
@@ -17,7 +17,7 @@ async def get_greeter_role(guild: Guild) -> Role:
 
 
 class GreetingRoleView(View):
-    @button(label="Be a greeter", style=ButtonStyle.green)
+    @ui.button(label="Be a greeter", style=ButtonStyle.green)
     async def add_or_remove_role(self, button: Button[None], inter: MessageInteraction) -> None:
         guild = inter.guild
         if guild is None:
@@ -45,6 +45,15 @@ class GreetingRoleView(View):
             button.style = ButtonStyle.red
 
         await inter.response.edit_message(view=self)
+
+
+"""    @ui.button(label="End Interaction", style=ButtonStyle.red)
+    async def end_interaction(self, button: Button[None], inter: MessageInteraction) -> None:
+        button.style = ButtonStyle.gray
+        for component in self.children:
+            component.disabled = True
+        await inter.response.edit_message(view=self)
+"""  # not added for now
 
 
 class Greetings(Cog):
