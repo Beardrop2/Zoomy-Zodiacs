@@ -46,12 +46,14 @@ class GreetingRoleView(View):
 
         await inter.response.edit_message(view=self)
 
-    @ui.button(label="End Interaction", style=ButtonStyle.red)
+
+"""    @ui.button(label="End Interaction", style=ButtonStyle.red)
     async def end_interaction(self, button: Button[None], inter: MessageInteraction) -> None:
         button.style = ButtonStyle.gray
         for component in self.children:
             component.disabled = True
         await inter.response.edit_message(view=self)
+"""  # not added for now
 
 
 class Greetings(Cog):
