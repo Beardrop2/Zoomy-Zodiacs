@@ -16,9 +16,9 @@ class Settings(BaseSettings):
                            "Bot" tab of your Discord application.
         database_path: The path to the SQLite database.
         ollama_host: The host for server for Ollama requests.
-                            See https://github.com/ollama/ollama
+                     See https://github.com/ollama/ollama
         ollama_model: The model used for Ollama requests.
-                            See https://ollama.com/library
+                      See https://ollama.com/library
     """
 
     model_config = SettingsConfigDict(env_file=".env", env_prefix="ZZ_")
