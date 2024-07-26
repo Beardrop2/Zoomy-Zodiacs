@@ -84,7 +84,7 @@ class Tags(Cog):
         # [1:] to remove the @everyone in the roles list
         info_dict = {
             "Joined:": f"<t:{int(member.joined_at.timestamp())}:R>",
-            "Roles:": ", ".join(role.mention for role in member.roles[1:]),
+            "Roles:": ", ".join(role.mention for role in member.roles[1:]) if len(member.roles) > 1 else "None",
             "Tags:": ", ".join(f"`{tag}`" for tag in tag_list) if len(tag_list) > 0 else "None",
         }
         content = "**Member Info**\n"
