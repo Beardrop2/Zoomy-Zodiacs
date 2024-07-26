@@ -89,10 +89,7 @@ class Tags(Cog):
         }
         content = "**Member Info**\n"
         for key, value in info_dict.items():
-            if value != "":
-                content += f"{key} {value}\n"
-            else:
-                content += f"{key} None\n"
+            content += f"{key} {value}\n"
         user_info = Embed(
             title=name,
             description=content,
