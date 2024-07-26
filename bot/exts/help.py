@@ -29,8 +29,9 @@ class Help(Cog):
 
         client = ollama.AsyncClient(host)
         response = await client.chat(model, messages)
+        response_text: str = response["message"]["content"]
 
-        await inter.send(str(response))
+        await inter.send(response_text)
 
 
 def setup(bot: Bot) -> None:
