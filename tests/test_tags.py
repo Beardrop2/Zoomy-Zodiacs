@@ -14,14 +14,14 @@ characters = st.sampled_from(ascii_lowercase)
 async def test_suggested_friends_basic_1() -> None:
     friends = [(1, "a"), (2, "a"), (2, "b")]
     res = await suggest_friends(friends, 1, {"a"})
-    assert res == {1: ["a"]}
+    assert res == list({1: ["a"]}.items())
 
 
 @pytest.mark.asyncio()
 async def test_suggested_friends_basic_2() -> None:
     friends = [(1, "a"), (1, "b"), (1, "c"), (2, "c"), (2, "b"), (3, "agf")]
     res = await suggest_friends(friends, 2, {"b", "c"})
-    assert res == {1: ["a", "b", "c"], 2: ["b", "c"]}
+    assert res == [(2,  ["b", "c"]) , ( 1, ["a", "b", "c"]) ]
 
 
 @pytest.mark.asyncio()
@@ -49,7 +49,7 @@ async def test_full_tag_suggestions_1() -> None:
         await repos.remove(id, tag)
 
     await database_connection.close()
-    assert res == {2: ["a"]}
+    assert res == list({2: ["a"]}.items())
 
 
 @pytest.mark.asyncio()
@@ -88,7 +88,7 @@ async def test_full_tag_suggestions_2() -> None:
 
     await database_connection.close()
 
-    assert res == {2: ["a"], 4: ["a"]}
+    assert res == [(4, ["a"]), (2, ["a"])]
 
 
 @pytest.mark.asyncio()
@@ -107,4 +107,4 @@ async def test_suggested_friends_suggestion_ratio() -> None:
 
 
     res = await suggest_friends(data, 1, {"a", "b", "c"})
-    assert res == {2: ["b", "c", "d"]}
+    assert res == [(2, ["b", "c", "d"])]
