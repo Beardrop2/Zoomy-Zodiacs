@@ -61,7 +61,7 @@ class Tags(Cog):
 
         # Construct the response message
         response = "Here are some friend suggestions based on your tags:\n\n"
-        for suggested_user_id, common_tags in suggestions.items():
+        for suggested_user_id, common_tags in suggestions:
             user = await self.bot.fetch_user(suggested_user_id)
             tag_list = ", ".join(f"`{tag}`" for tag in common_tags)
             response += f"- {user.mention}\n  Common tags: {tag_list}\n\n"

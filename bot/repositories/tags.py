@@ -76,15 +76,15 @@ class TagRepository(ABC):
         """
 
     @abstractmethod
-    async def get_friend_suggestions(self, user_id: int) -> dict[int, list[str]]:
+    async def get_friend_suggestions(self, user_id: int) -> list[tuple[int, list[str]]]:
         """Suggest friends for a user based on their tags.
 
         Args:
             user_id: The user's Discord ID.
 
         Returns:
-            A dictionary mapping suggested user IDs to the tags they have in
-            common with the user.
+            A list containing pairs of suggested user IDs with
+            the tags they have in common with the user.
         """
 
 
@@ -126,12 +126,12 @@ class SqliteTagRepository(TagRepository):
             await self.database.commit()
 
     @override
-    async def get_friend_suggestions(self, user_id: int) -> dict[int, list[str]]:
+    async def get_friend_suggestions(self, user_id: int) -> list[tuple[int, list[str]]]:
         async with self.database.cursor() as cursor:
             user_tags = await self.get(user_id)
 
             if not user_tags:
-                return {}
+                return []
 
             query = """
                 SELECT t.user_id, t.tag
@@ -146,7 +146,7 @@ class SqliteTagRepository(TagRepository):
                 """
             await cursor.execute(query, (user_id,))
 
-            result_any_tags: list[tuple[int, str]] = await cursor.fetchall()  # type: ignore[reportAssignmentType
+            result_any_tags: list[tuple[int, str]] = await cursor.fetchall()  # type: ignore[reportAssignmentType]
 
             # Limit to top 10 users with best ratio of tags in common
             return await suggest_friends(result_any_tags, 10, user_tags)
@@ -160,7 +160,11 @@ async def group_friends(result: list[tuple[int, str]]) -> dict[int, set[str]]:
     return dict(suggestions)
 
 
-async def suggest_friends(result: list[tuple[int, str]], amt: int, user_tags: list[str]) -> dict[int, list[str]]:
+async def suggest_friends(
+    result: list[tuple[int, str]],
+    amt: int,
+    user_tags: list[str],
+) -> list[tuple[int, list[str]]]:
     suggestions = await group_friends(result)
     user_tags = set(user_tags)
 
@@ -168,7 +172,6 @@ async def suggest_friends(result: list[tuple[int, str]], amt: int, user_tags: li
         """Use ratio of tags in common:total tags to prevent gaming the system by having every tag."""
         return len(user_tags & tags) / len(user_tags | tags)
 
-    # Limit to top {amt}} users with most common tags
-    res = dict(sorted(suggestions.items(), key=lambda x: key(x[1]), reverse=True)[:amt])
-    return {k: sorted(v) for k, v in res.items()}
-    # should we adjust to return set instead of list?
+    # Limit to top {amt} users with most common tags
+    res = sorted(suggestions.items(), key=lambda x: (key(x[1]), x[0]), reverse=True)[:amt]
+    return [(k, sorted(v)) for k, v in res]
