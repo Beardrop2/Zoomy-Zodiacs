@@ -8,7 +8,7 @@ SYSTEM_PROMPT_TEMPLATE = """
 You are a helpful AI assistant guiding new Discord server members. Here is the
 list of channels:
 
-{channels_summary}
+{server_summary}
 
 When mentioning a channel, use the format <#Channel ID> as it renders to a
 clickable link to the channel on Discord.
@@ -50,20 +50,30 @@ class Help(Cog):
 
 
 def build_system_prompt(guild: Guild) -> str:
-    channels_summary = ""
+    server_summary = f"Server Name: {guild.name}"
+    # server_summary = f"Invite: {guild.invites[0]}" TODO: find a better way to get invites
+    server_summary += "*Channels info*"
 
     for channel in guild.channels:
-        channels_summary += f"Name: {channel.name}\n"
-        channels_summary += f"ID: {channel.id}\n"
+        server_summary += f"Name: {channel.name}\n"
+        server_summary += f"ID: {channel.id}\n"
 
         if isinstance(channel, TextChannel):
-            channels_summary += "Type: Text\n"
-            channels_summary += f"Topic: {channel.topic}\n\n"
+            server_summary += "Type: Text Channel\n"
+            server_summary += f"Topic: {channel.topic}\n\n"
 
         elif isinstance(channel, VoiceChannel):
-            channels_summary += "Type: Voice\n\n"
+            server_summary += "Type: Voice Channel\n\n"
 
-    return SYSTEM_PROMPT_TEMPLATE.format(channels_summary=channels_summary)
+    server_summary += "*Roles info*"
+    for role in guild.roles:
+        server_summary += f"Name: {role.name}"
+        server_summary += "Type: Role"
+        # server_summary += f"Permissions: {role.permissions}" TODO: turn the permission into text
+
+    # TODO: add the bots command info?
+
+    return SYSTEM_PROMPT_TEMPLATE.format(server_summary=server_summary)
 
 
 def setup(bot: Bot) -> None:
