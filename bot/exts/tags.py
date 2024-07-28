@@ -1,4 +1,4 @@
-from typing import get_args
+from typing import cast, get_args, override
 
 from disnake import AllowedMentions, AppCmdInter, Color, Embed, Member, MessageInteraction, SelectOption
 from disnake.ext.commands import Cog, slash_command
@@ -9,31 +9,35 @@ from bot.errors import DatabaseNotConnectedError
 from bot.repositories.tags import TagType
 
 
-class TagsDropdown(StringSelect):
+class TagsDropdown(StringSelect[None]):
     def __init__(self, bot: Bot) -> None:
         self.bot = bot
 
         options = [
-            SelectOption(
-                label=tag,
-                description=f"You are interested in `{tag}`",  # TODO: better ways to write this?
-            )
-            for tag in get_args(TagType)
+            SelectOption(label=tag, description=f"You're interested in {tag}")  # pyright: ignore[reportAny]
+            for tag in get_args(TagType)  # pyright: ignore[reportAny]
         ]
 
         super().__init__(
             placeholder="Choose your tags",
             min_values=1,
-            max_values=21,
+            max_values=len(options),
             options=options,
         )
 
-    async def callback(self, inter: MessageInteraction) -> None:
+    @override
+    async def callback(self, interaction: MessageInteraction) -> None:
+        tag_repo = self.bot.tag_repository
+        if tag_repo is None:
+            raise DatabaseNotConnectedError
+
         for tag in self.values:
-            await self.bot.tag_repository.add(inter.author.id, tag)
-        s = "s" if len(self.values) > 1 else ""  # to fix grammar if tags are added
+            await tag_repo.add(interaction.author.id, cast(TagType, tag))
+
+        s = "s" if len(self.values) > 1 else ""  # Fix grammar if multiple tags are added
         added_tags = ", ".join(f"`{tag}`" for tag in self.values)
-        await inter.response.send_message(f"Added tag{s} {added_tags} to {inter.user}", ephemeral=True)
+
+        await interaction.send(f"Added tag{s} {added_tags} to {interaction.user}", ephemeral=True)
 
 
 class DropdownView(View):
