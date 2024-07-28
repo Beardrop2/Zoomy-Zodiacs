@@ -3,7 +3,7 @@ from disnake.ext.commands import Cog, slash_command
 
 from bot.bot import Bot
 from bot.errors import DatabaseNotConnectedError
-from bot.exts.greetings import GREETER_ROLE_NAME
+from bot.exts.greetings import GREETER_ROLE_NAME, get_greeter_role
 from bot.repositories.tags import TagType
 
 
@@ -22,12 +22,18 @@ class Tags(Cog):
         if self.bot.tag_repository is None:
             raise DatabaseNotConnectedError
 
-        await self.bot.tag_repository.add(
+        guild = interaction.guild
+        user = interaction.author
+        greeter_role = await get_greeter_role(guild)
+        has_greeter_role = greeter_role in user.roles
+
+        await self.bot.tag_repository.add_tag(
             guild_id=interaction.guild.id,
             user_id=interaction.author.id,
             tag=tag,
+            greeter=has_greeter_role,
         )
-        await interaction.response.send_message(f"Added tag `{tag}` to {interaction.user}", ephemeral=True)
+        await interaction.response.send_message(f"Added tag `{tag}` to {user}", ephemeral=True)
 
     @tag.sub_command()
     async def remove(self, interaction: AppCmdInter, tag: TagType) -> None:
@@ -95,7 +101,7 @@ class Tags(Cog):
         if not tag_repo:
             raise DatabaseNotConnectedError
 
-        tag_list = await tag_repo.get(member.id)
+        tag_list = await tag_repo.get_tags(interaction.guild.id, member.id)
 
         name = member.name
         if member.nick:

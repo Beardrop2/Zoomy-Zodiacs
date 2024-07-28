@@ -211,12 +211,12 @@ class SqliteTagRepository(TagRepository):
     async def get_greeter(self, guild_id: int, user_id: int) -> bool:
         async with self.database.cursor() as cursor:
             await cursor.execute(
-                "SELECT greeter FROM users WHERE guild_id = ? AND user_id = ?",
+                "SELECT greeter FROM tags WHERE guild_id = ? AND user_id = ?",
                 (guild_id, user_id),
             )
             rows = await cursor.fetchall()
             if len(rows) == 0:
-                raise UnknownUserError
+                return False
             if len(rows) > 1:  # There should never be duplicate users.
                 raise DatabaseIntegrityError
             return bool(rows[0][0])
