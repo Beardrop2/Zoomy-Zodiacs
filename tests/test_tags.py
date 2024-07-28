@@ -160,10 +160,10 @@ async def test_suggestions_in_same_guild() -> None:
         await repos.add(guild, id, tag, is_greeter)
 
     res = await repos.get_friend_suggestions(test_guild, 1)
-    await database_connection.close()
+
     for guild, id, tag in data:
         await repos.remove_tag(guild, id, tag)
-
+    await database_connection.close()
     assert res == [(2, ["b"])]
 
 
