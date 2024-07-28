@@ -47,15 +47,11 @@ class GreetingRoleView(View):
         has_greeter_role = greeter_role in member.roles
 
         if has_greeter_role:
-            msg = f"Set {member.nickname} to Greeter"
-            self.logger.info(msg)
             button.label = "Be a greeter"
             button.style = ButtonStyle.green
             await member.remove_roles(greeter_role)
 
         if not has_greeter_role:
-            msg = f"{member.nickname} no longer Greeter"
-            self.logger.info(msg)
             button.label = "Stop being a greeter"
             button.style = ButtonStyle.red
             await member.add_roles(greeter_role)
