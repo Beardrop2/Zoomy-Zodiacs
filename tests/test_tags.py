@@ -8,6 +8,10 @@ from hypothesis import strategies as st
 from repositories.tags import SqliteTagRepository, group_friends, suggest_friends
 
 characters = st.sampled_from(ascii_lowercase)
+test_guild = 1234
+other_guild = 2468
+is_greeter = True
+not_greeter = False
 # more likely to be desired duplicates than with st.text()
 
 
@@ -42,12 +46,12 @@ async def test_full_tag_suggestions_1() -> None:
 
     data = [(1, "a"), (2, "a"), (3, "b")]
     for id, tag in data:
-        await repos.add(id, tag)
+        await repos.add(guild_id=test_guild, user_id=id, tags=[tag], greeter=is_greeter)
 
-    res = await repos.get_friend_suggestions(1)
+    res = await repos.get_friend_suggestions(guild_id=test_guild, user_id=1)
 
     for id, tag in data:
-        await repos.remove(id, tag)
+        await repos.remove_tag(test_guild, id, tag)
 
     await database_connection.close()
     assert res == list({2: ["a"]}.items())
@@ -104,12 +108,12 @@ async def test_full_tag_suggestions_2() -> None:
     data = [(1, "a"), (2, "a"), (3, "b"), (4, "a")]
 
     for id, tag in data:
-        await repos.add(id, tag)
+        await repos.add(test_guild, id, tag, is_greeter)
 
-    res = await repos.get_friend_suggestions(1)
+    res = await repos.get_friend_suggestions(test_guild, 1)
 
     for id, tag in data:
-        await repos.remove(id, tag)
+        await repos.remove_tag(test_guild, id, tag)
 
     await database_connection.close()
 
@@ -133,3 +137,88 @@ async def test_suggested_friends_suggestion_ratio() -> None:
 
     res = await suggest_friends(data, 1, {"a", "b", "c"})
     assert res == [(2, ["b", "c", "d"])]
+
+@pytest.mark.asyncio()
+async def test_suggestions_in_same_guild() -> None:
+    # user 1: Alice has tags a, b and is a member of test guild
+    # user 2: Bob has tag b and is a member of test guild
+    # user 3: Mal has tags a, b, and is a member of other guild
+
+    database_connection = await aiosqlite.connect("test.db")
+
+    repos = SqliteTagRepository(database_connection)
+    await repos.initialize()
+
+    data = [
+        (test_guild, 1, "a"),
+        (test_guild, 1, "b"),
+        (test_guild, 2, "b"),
+        (other_guild, 3, "a"),
+        (other_guild, 3, "b"),
+    ]
+    for guild, id, tag in data:
+        await repos.add(guild, id, tag, is_greeter)
+
+    res = await repos.get_friend_suggestions(test_guild, 1)
+
+    for guild, id, tag in data:
+        await repos.remove_tag(guild, id, tag)
+
+    assert res == [(2, ["b"])]
+
+
+@pytest.mark.asyncio()
+async def test_suggestions_are_greeters() -> None:
+    # user 1: Alice has tags a, b and is a greeter
+    # user 2: Bob has tag b and is a greeter
+    # user 3: Lilly has tags a, b, and is not a greeter
+    database_connection = await aiosqlite.connect("test.db")
+
+    repos = SqliteTagRepository(database_connection)
+    await repos.initialize()
+
+    data = [
+        (1, "a", is_greeter),
+        (1, "b", is_greeter),
+        (2, "b", is_greeter),
+        (3, "a", not_greeter),
+        (3, "b", not_greeter),
+    ]
+    for id, tag, greeter in data:
+        await repos.add(test_guild, id, tag, greeter)
+
+    res = await repos.get_friend_suggestions(test_guild, 1)
+
+    for row in data:
+        await repos.remove_tag(test_guild, row[0], row[1])
+    assert res == [(2, ["b"])]
+
+
+@pytest.mark.asyncio()
+async def test_greeters_update() -> None:
+    # In this test, Lilly becomes a greeter
+    # user 1: Alice has tags a, b and is a greeter
+    # user 2: Bob has tag b and is a greeter
+    # user 3: Lilly has tags a, b, and is not INITALLY a greeter
+    database_connection = await aiosqlite.connect("test.db")
+
+    repos = SqliteTagRepository(database_connection)
+    await repos.initialize()
+
+    data = [
+        (1, "a", is_greeter),
+        (1, "b", is_greeter),
+        (2, "b", is_greeter),
+        (3, "a", not_greeter),
+        (3, "b", not_greeter),
+    ]
+    for id, tag, greeter in data:
+        await repos.add(test_guild, id, tag, greeter)
+
+    await repos.update_greeter(test_guild, 3, is_greeter)
+    res = await repos.get_friend_suggestions(test_guild, 1)
+
+    for row in data:
+        await repos.remove_tag(test_guild, row[0], row[1])
+
+    assert res[0] == (3, ["a", "b"])
