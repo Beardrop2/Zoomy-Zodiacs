@@ -1,14 +1,17 @@
-
 from logging import Logger
 
-from disnake import AppCmdInter, ButtonStyle, Guild, Member, MessageInteraction, Role
-from disnake.ext.commands import Cog, CommandError, NoPrivateMessage, bot_has_permissions, guild_only, slash_command
+from disnake import (AppCmdInter, ButtonStyle, Guild, Member,
+                     MessageInteraction, Role)
+from disnake.ext.commands import (Cog, CommandError, NoPrivateMessage,
+                                  bot_has_permissions, guild_only,
+                                  slash_command)
 from disnake.ui import Button, View, button
 
 from bot.bot import Bot
 from bot.repositories.tags import TagRepository
 
 GREETER_ROLE_NAME = "Greeter"
+
 
 async def setup_greeter_role(guild: Guild) -> Role:
     if GREETER_ROLE_NAME not in guild.roles:
@@ -31,7 +34,6 @@ class GreetingRoleView(View):
 
     @button(label="Be a greeter", style=ButtonStyle.green)
     async def add_or_remove_role(self, button: Button[None], inter: MessageInteraction) -> None:
-        self.logger.info("add or remove role")
         guild = inter.guild
         if guild is None:
             # The command requires the Manage Guild and Manage Roles permissions,
