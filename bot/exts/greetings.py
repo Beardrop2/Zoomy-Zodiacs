@@ -1,15 +1,14 @@
 
-from disnake import AppCmdInter, ButtonStyle, Guild, Interaction, InteractionType, Member, MessageInteraction, Role, ui
-from disnake.ext.commands import Cog, CommandError, bot_has_permissions, guild_only, slash_command
-from disnake.ui import Button, View
+from logging import Logger
+
+from disnake import AppCmdInter, ButtonStyle, Guild, Member, MessageInteraction, Role
+from disnake.ext.commands import Cog, CommandError, NoPrivateMessage, bot_has_permissions, guild_only, slash_command
+from disnake.ui import Button, View, button
 
 from bot.bot import Bot
-from bot.errors import UserNotMemberError
-
-# from bot.repositories.tags import
+from bot.repositories.tags import TagRepository
 
 GREETER_ROLE_NAME = "Greeter"
-
 
 async def setup_greeter_role(guild: Guild) -> Role:
     if GREETER_ROLE_NAME not in guild.roles:
@@ -24,8 +23,15 @@ async def get_greeter_role(guild: Guild) -> Role:
 
 
 class GreetingRoleView(View):
-    @ui.button(label="Be a greeter", style=ButtonStyle.green, custom_id="be_greeter_button")
+    def __init__(self, tag_repository: TagRepository, logger: Logger) -> None:
+        super().__init__()
+
+        self.tag_repository = tag_repository
+        self.logger = logger
+
+    @button(label="Be a greeter", style=ButtonStyle.green)
     async def add_or_remove_role(self, button: Button[None], inter: MessageInteraction) -> None:
+        self.logger.info("add or remove role")
         guild = inter.guild
         if guild is None:
             # The command requires the Manage Guild and Manage Roles permissions,
@@ -36,18 +42,30 @@ class GreetingRoleView(View):
         if not isinstance(member, Member):
             # The author is a member since the command is guild-only, so this
             # should never happen
-            raise UserNotMemberError
+            raise NoPrivateMessage
 
         greeter_role = await get_greeter_role(guild)
         has_greeter_role = greeter_role in member.roles
 
         if has_greeter_role:
+            msg = f"Set {member.nickname} to Greeter"
+            self.logger.info(msg)
             button.label = "Be a greeter"
             button.style = ButtonStyle.green
+            await member.remove_roles(greeter_role)
 
         if not has_greeter_role:
+            msg = f"{member.nickname} no longer Greeter"
+            self.logger.info(msg)
             button.label = "Stop being a greeter"
             button.style = ButtonStyle.red
+            await member.add_roles(greeter_role)
+
+        await self.tag_repository.update_greeter(
+            guild.id,
+            member.id,
+            (not has_greeter_role),  # Update the role to have been flipped.
+        )
 
         await inter.response.edit_message(view=self)
 
@@ -65,31 +83,8 @@ class Greetings(Cog):
         """Add or remove your Greeter role."""
         await inter.response.send_message(
             content="Click the button to manage your greeter role",
-            view=GreetingRoleView(),
+            view=GreetingRoleView(self.bot.tag_repository, self.bot.logger),
             ephemeral=True,
-        )
-
-    @Cog.listener()
-    async def on_interaction(self, interaction: Interaction) -> None:
-        if interaction.type == InteractionType.component and interaction.data.get("custom_id") == "be_greeter_button":
-            await self.handle_greeter_role(interaction)
-
-    async def handle_greeter_role(self, interaction: Interaction) -> None:
-        guild = interaction.guild
-        user = interaction.author
-        greeter_role = await get_greeter_role(guild)
-        has_greeter_role = greeter_role in user.roles
-
-        if has_greeter_role:
-            await user.remove_roles(greeter_role)
-
-        if not has_greeter_role:
-            await user.add_roles(greeter_role)
-
-        await self.bot.tag_repository.update_greeter(
-            guild.id,
-            user.id,
-            (not has_greeter_role),  # Update the role to have been flipped.
         )
 
 
