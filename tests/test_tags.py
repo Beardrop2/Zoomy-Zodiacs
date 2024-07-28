@@ -160,7 +160,7 @@ async def test_suggestions_in_same_guild() -> None:
         await repos.add(guild, id, tag, is_greeter)
 
     res = await repos.get_friend_suggestions(test_guild, 1)
-
+    await database_connection.close()
     for guild, id, tag in data:
         await repos.remove_tag(guild, id, tag)
 
@@ -191,6 +191,7 @@ async def test_suggestions_are_greeters() -> None:
 
     for row in data:
         await repos.remove_tag(test_guild, row[0], row[1])
+    await database_connection.close()
     assert res == [(2, ["b"])]
 
 
@@ -221,4 +222,5 @@ async def test_greeters_update() -> None:
     for row in data:
         await repos.remove_tag(test_guild, row[0], row[1])
 
+    await database_connection.close()
     assert res[0] == (3, ["a", "b"])
