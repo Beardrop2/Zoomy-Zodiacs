@@ -63,6 +63,8 @@ jobs:
       ZZ_DISCORD_BOT_TOKEN: ${{ secrets.ZZ_DISCORD_BOT_TOKEN }}
     steps:
       - run: echo "ZZ_DISCORD_BOT_TOKEN=$ZZ_DISCORD_BOT_TOKEN" >> .env
+      - run: echo "ZZ_OLLAMA_HOST=$ZZ_OLLAMA_HOST" >> .env
+      - run: echo "ZZ_OLLAMA_MODEL=phi3" >> .env
       - run: echo "$HOME/.local/bin" >> $GITHUB_PATH
       - name: Start Bot
         run: systemctl start zz_bot
