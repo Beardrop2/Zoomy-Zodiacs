@@ -1,10 +1,7 @@
 from logging import Logger
 
-from disnake import (AppCmdInter, ButtonStyle, Guild, Member,
-                     MessageInteraction, Role)
-from disnake.ext.commands import (Cog, CommandError, NoPrivateMessage,
-                                  bot_has_permissions, guild_only,
-                                  slash_command)
+from disnake import AppCmdInter, ButtonStyle, Guild, Member, MessageInteraction, Role
+from disnake.ext.commands import Cog, CommandError, NoPrivateMessage, bot_has_permissions, guild_only, slash_command
 from disnake.ui import Button, View, button
 
 from bot.bot import Bot

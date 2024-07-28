@@ -54,7 +54,7 @@ class TagRepository(ABC):
         """
 
     @abstractmethod
-    async def add_tag(self, user_id: int, tag: TagType, greeter: bool) -> None:
+    async def add(self, user_id: int, tag: list[TagType], greeter: bool) -> None:
         """Add a tag to a user.
 
         Args:
@@ -155,19 +155,20 @@ class SqliteTagRepository(TagRepository):
         await self.database.commit()
 
     @override
-    async def add_tag(
+    async def add(
         self,
         guild_id: int,
         user_id: int,
-        tag: TagType,
+        tags: list[TagType],
         greeter: bool,
     ) -> None:
         async with self.database.cursor() as cursor:
             sql_script = "INSERT OR IGNORE INTO tags (guild_id, user_id, tag, greeter) VALUES (?, ?, ?, ?)"
-            await cursor.execute(
-                sql_script,
-                (guild_id, user_id, tag, greeter),
-            )
+            for tag in tags:
+                await cursor.execute(
+                    sql_script,
+                    (guild_id, user_id, tag, greeter),
+                )
             await self.database.commit()
 
     @override

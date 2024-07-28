@@ -94,14 +94,12 @@ reportUnknownVariableType = "none"
 reportUnknownMemberType = "none"
 reportImplicitStringConcatenation = "none"
 
-
 [tool.pytest.ini_options]
 minversion = "8.2"
 addopts = "-ra -q"
 python_files = "test_*.py"
 testpaths = ["tests"]
 pythonpath = ["bot"]
-
 
 [build-system]
 requires = ["pdm-backend"]

@@ -1,10 +1,59 @@
-from disnake import AllowedMentions, AppCmdInter, Color, Embed, Member
+from typing import cast, get_args, override
+
+from disnake import AllowedMentions, AppCmdInter, Color, Embed, Member, MessageInteraction, SelectOption
 from disnake.ext.commands import Cog, slash_command
+from disnake.ui import StringSelect, View
 
 from bot.bot import Bot
 from bot.errors import DatabaseNotConnectedError
 from bot.exts.greetings import GREETER_ROLE_NAME, get_greeter_role
 from bot.repositories.tags import TagType
+
+
+class TagsDropdown(StringSelect[None]):
+    def __init__(self, bot: Bot) -> None:
+        self.bot = bot
+
+        options = [
+            SelectOption(label=tag, description=f"You're interested in {tag}")  # pyright: ignore[reportAny]
+            for tag in get_args(TagType)  # pyright: ignore[reportAny]
+        ]
+
+        super().__init__(
+            placeholder="Choose your tags",
+            min_values=1,
+            max_values=len(options),
+            options=options,
+        )
+
+    @override
+    async def callback(self, interaction: MessageInteraction) -> None:
+        tag_repo = self.bot.tag_repository
+        if tag_repo is None:
+            raise DatabaseNotConnectedError
+
+        guild = interaction.guild
+        user = interaction.author
+        greeter_role = await get_greeter_role(guild)
+        has_greeter_role = greeter_role in user.roles
+
+        await tag_repo.add(
+            guild_id=interaction.guild.id,
+            user_id=interaction.author.id,
+            tags=cast(list[TagType], self.values),
+            greeter=has_greeter_role,
+        )
+
+        s = "s" if len(self.values) > 1 else ""  # Fix grammar if multiple tags are added
+        added_tags = ", ".join(f"`{tag}`" for tag in self.values)
+
+        await interaction.send(f"Added tag{s} {added_tags} to {interaction.user}", ephemeral=True)
+
+
+class DropdownView(View):
+    def __init__(self, bot: Bot) -> None:
+        super().__init__()
+        self.add_item(TagsDropdown(bot=bot))
 
 
 class Tags(Cog):
@@ -16,24 +65,14 @@ class Tags(Cog):
         """Manage your tags."""
 
     @tag.sub_command()
-    async def add(self, interaction: AppCmdInter, tag: TagType) -> None:
+    async def add(self, interaction: AppCmdInter) -> None:
         """Add a user tag to yourself."""
 
         if self.bot.tag_repository is None:
             raise DatabaseNotConnectedError
 
-        guild = interaction.guild
-        user = interaction.author
-        greeter_role = await get_greeter_role(guild)
-        has_greeter_role = greeter_role in user.roles
-
-        await self.bot.tag_repository.add_tag(
-            guild_id=interaction.guild.id,
-            user_id=interaction.author.id,
-            tag=tag,
-            greeter=has_greeter_role,
-        )
-        await interaction.response.send_message(f"Added tag `{tag}` to {user}", ephemeral=True)
+        view = DropdownView(self.bot)
+        await interaction.response.send_message("What are you interested in?", view=view)
 
     @tag.sub_command()
     async def remove(self, interaction: AppCmdInter, tag: TagType) -> None:

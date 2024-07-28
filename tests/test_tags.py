@@ -1,8 +1,9 @@
+from random import sample
 from string import ascii_lowercase
 
 import aiosqlite
 import pytest
-from hypothesis import assume, given
+from hypothesis import given
 from hypothesis import strategies as st
 from repositories.tags import SqliteTagRepository, group_friends, suggest_friends
 
@@ -67,11 +68,35 @@ async def test_suggested_friends_deterministic(
     amt: int,
     user_tags: list[str],
 ) -> None:
-    assume(amt > 0)
     result1 = await suggest_friends(xs, amt, user_tags)
     result2 = await suggest_friends(xs, amt, user_tags)
     assert result1 == result2, "The suggest_friends function should be consistent."
 
+
+@pytest.mark.asyncio()
+@given(
+    st.lists(st.tuples(st.text(), st.text())),
+    st.integers(min_value=1),
+    st.lists(characters),
+)
+async def test_suggested_friends_order_irrelevant(
+    xs: list[tuple[str, str]],
+    amt: int,
+    user_tags: list[str],
+) -> None:
+    """Verify that order of inputted lists doesn't change the output"""
+
+    # from https://docs.python.org/3/library/random.html#random.shuffle :
+    # To shuffle an immutable sequence and return a new shuffled list, use sample(x, k=len(x)) instead.
+
+    xs2 = sample(xs, k=len(xs))
+    user_tags2 = sample(user_tags, k=len(user_tags))
+
+    a = await suggest_friends(xs, amt, user_tags)
+    b = await suggest_friends(xs2, amt, user_tags)
+    c = await suggest_friends(xs, amt, user_tags2)
+    d = await suggest_friends(xs2, amt, user_tags2)
+    assert a == b == c == d
 
 @pytest.mark.asyncio()
 async def test_full_tag_suggestions_2() -> None:
