@@ -1,9 +1,48 @@
-from disnake import AllowedMentions, AppCmdInter, Color, Embed, Member
+from typing import cast, get_args, override
+
+from disnake import AllowedMentions, AppCmdInter, Color, Embed, Member, MessageInteraction, SelectOption
 from disnake.ext.commands import Cog, slash_command
+from disnake.ui import StringSelect, View
 
 from bot.bot import Bot
 from bot.errors import DatabaseNotConnectedError
 from bot.repositories.tags import TagType
+
+
+class TagsDropdown(StringSelect[None]):
+    def __init__(self, bot: Bot) -> None:
+        self.bot = bot
+
+        options = [
+            SelectOption(label=tag, description=f"You're interested in {tag}")  # pyright: ignore[reportAny]
+            for tag in get_args(TagType)  # pyright: ignore[reportAny]
+        ]
+
+        super().__init__(
+            placeholder="Choose your tags",
+            min_values=1,
+            max_values=len(options),
+            options=options,
+        )
+
+    @override
+    async def callback(self, interaction: MessageInteraction) -> None:
+        tag_repo = self.bot.tag_repository
+        if tag_repo is None:
+            raise DatabaseNotConnectedError
+
+        await tag_repo.add(interaction.author.id, cast(list[TagType], self.values))
+
+        s = "s" if len(self.values) > 1 else ""  # Fix grammar if multiple tags are added
+        added_tags = ", ".join(f"`{tag}`" for tag in self.values)
+
+        await interaction.send(f"Added tag{s} {added_tags} to {interaction.user}", ephemeral=True)
+
+
+class DropdownView(View):
+    def __init__(self, bot: Bot) -> None:
+        super().__init__()
+        self.add_item(TagsDropdown(bot=bot))
 
 
 class Tags(Cog):
@@ -15,14 +54,11 @@ class Tags(Cog):
         """Manage your tags."""
 
     @tag.sub_command()
-    async def add(self, interaction: AppCmdInter, tag: TagType) -> None:
-        """Add a user tag to yourself."""
+    async def add(self, interaction: AppCmdInter) -> None:
+        """Add user tag(s) to yourself."""
 
-        if self.bot.tag_repository is None:
-            raise DatabaseNotConnectedError
-
-        await self.bot.tag_repository.add(interaction.author.id, tag)
-        await interaction.response.send_message(f"Added tag `{tag}` to {interaction.user}", ephemeral=True)
+        view = DropdownView(self.bot)
+        await interaction.response.send_message("What are you interested in?", view=view)
 
     @tag.sub_command()
     async def remove(self, interaction: AppCmdInter, tag: TagType) -> None:

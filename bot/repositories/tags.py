@@ -45,12 +45,12 @@ class TagRepository(ABC):
         """
 
     @abstractmethod
-    async def add(self, user_id: int, tag: TagType) -> None:
-        """Add a tag to a user.
+    async def add(self, user_id: int, tags: list[TagType]) -> None:
+        """Add tags to a user.
 
         Args:
             user_id: The user's Discord ID.
-            tag: The tag to add.
+            tags: The tags to add.
         """
 
     @abstractmethod
@@ -107,9 +107,10 @@ class SqliteTagRepository(TagRepository):
             await self.database.commit()
 
     @override
-    async def add(self, user_id: int, tag: TagType) -> None:
+    async def add(self, user_id: int, tags: list[TagType]) -> None:
         async with self.database.cursor() as cursor:
-            await cursor.execute("INSERT OR IGNORE INTO tags (user_id, tag) VALUES (?, ?)", (user_id, tag))
+            for tag in tags:
+                await cursor.execute("INSERT OR IGNORE INTO tags (user_id, tag) VALUES (?, ?)", (user_id, tag))
             await self.database.commit()
 
     @override
