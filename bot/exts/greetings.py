@@ -1,4 +1,3 @@
-import logging
 
 from disnake import AppCmdInter, ButtonStyle, Guild, Interaction, InteractionType, Member, MessageInteraction, Role, ui
 from disnake.ext.commands import Cog, CommandError, bot_has_permissions, guild_only, slash_command
@@ -6,8 +5,6 @@ from disnake.ui import Button, View
 
 from bot.bot import Bot
 from bot.errors import UserNotMemberError
-
-logger = logging.getLogger(name=__name__)
 
 # from bot.repositories.tags import
 
@@ -22,8 +19,6 @@ async def setup_greeter_role(guild: Guild) -> Role:
 async def get_greeter_role(guild: Guild) -> Role:
     for role in guild.roles:
         if role.name.lower() == GREETER_ROLE_NAME.lower():
-            msg = f"Greeter role is {role}"
-            logger.info(msg)
             return role
     raise CommandError
 
@@ -31,7 +26,6 @@ async def get_greeter_role(guild: Guild) -> Role:
 class GreetingRoleView(View):
     @ui.button(label="Be a greeter", style=ButtonStyle.green, custom_id="be_greeter_button")
     async def add_or_remove_role(self, button: Button[None], inter: MessageInteraction) -> None:
-        logger.info("Add or remove role")
         guild = inter.guild
         if guild is None:
             # The command requires the Manage Guild and Manage Roles permissions,
@@ -46,8 +40,6 @@ class GreetingRoleView(View):
 
         greeter_role = await get_greeter_role(guild)
         has_greeter_role = greeter_role in member.roles
-        msg = "{member.nickname} has {greeter_role} is {has_greeter_role}"
-        logger.debug(msg)
 
         if has_greeter_role:
             button.label = "Be a greeter"
@@ -58,15 +50,6 @@ class GreetingRoleView(View):
             button.style = ButtonStyle.red
 
         await inter.response.edit_message(view=self)
-
-
-"""    @ui.button(label="End Interaction", style=ButtonStyle.red)
-    async def end_interaction(self, button: Button[None], inter: MessageInteraction) -> None:
-        button.style = ButtonStyle.gray
-        for component in self.children:
-            component.disabled = True
-        await inter.response.edit_message(view=self)
-"""  # not added for now
 
 
 class Greetings(Cog):
@@ -88,12 +71,10 @@ class Greetings(Cog):
 
     @Cog.listener()
     async def on_interaction(self, interaction: Interaction) -> None:
-        self.bot.logger.info("On Interaction")
         if interaction.type == InteractionType.component and interaction.data.get("custom_id") == "be_greeter_button":
             await self.handle_greeter_role(interaction)
 
     async def handle_greeter_role(self, interaction: Interaction) -> None:
-        self.bot.logger.info("Handle Greeter")
         guild = interaction.guild
         user = interaction.author
         greeter_role = await get_greeter_role(guild)
