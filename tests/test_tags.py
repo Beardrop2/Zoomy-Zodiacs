@@ -46,7 +46,7 @@ async def test_full_tag_suggestions_1() -> None:
 
     data = [(1, "a"), (2, "a"), (3, "b")]
     for id, tag in data:
-        await repos.add_tag(guild_id=test_guild, user_id=id, tag=tag, greeter=is_greeter)
+        await repos.add(guild_id=test_guild, user_id=id, tags=[tag], greeter=is_greeter)
 
     res = await repos.get_friend_suggestions(guild_id=test_guild, user_id=1)
 
@@ -108,7 +108,7 @@ async def test_full_tag_suggestions_2() -> None:
     data = [(1, "a"), (2, "a"), (3, "b"), (4, "a")]
 
     for id, tag in data:
-        await repos.add_tag(test_guild, id, tag, is_greeter)
+        await repos.add(test_guild, id, tag, is_greeter)
 
     res = await repos.get_friend_suggestions(test_guild, 1)
 
@@ -157,7 +157,7 @@ async def test_suggestions_in_same_guild() -> None:
         (other_guild, 3, "b"),
     ]
     for guild, id, tag in data:
-        await repos.add_tag(guild, id, tag, is_greeter)
+        await repos.add(guild, id, tag, is_greeter)
 
     res = await repos.get_friend_suggestions(test_guild, 1)
 
@@ -185,7 +185,7 @@ async def test_suggestions_are_greeters() -> None:
         (3, "b", not_greeter),
     ]
     for id, tag, greeter in data:
-        await repos.add_tag(test_guild, id, tag, greeter)
+        await repos.add(test_guild, id, tag, greeter)
 
     res = await repos.get_friend_suggestions(test_guild, 1)
 
@@ -213,7 +213,7 @@ async def test_greeters_update() -> None:
         (3, "b", not_greeter),
     ]
     for id, tag, greeter in data:
-        await repos.add_tag(test_guild, id, tag, greeter)
+        await repos.add(test_guild, id, tag, greeter)
 
     await repos.update_greeter(test_guild, 3, is_greeter)
     res = await repos.get_friend_suggestions(test_guild, 1)
