@@ -3,22 +3,32 @@ from disnake.ext.commands import Cog, bot_has_permissions, guild_only, slash_com
 from disnake.ui import Button, View
 
 from bot.bot import Bot
-from bot.errors import UserNotMemberError
+from bot.errors import DatabaseNotConnectedError, GreeterRoleNotConfigured, UserNotMemberError
+
+# from bot.repositories.tags import
 
 GREETER_ROLE_NAME = "Greeter"
+
+
+async def setup_greeter_role(guild: Guild) -> Role:
+    if GREETER_ROLE_NAME not in guild.roles:
+        guild.create_role(name=GREETER_ROLE_NAME)
 
 
 async def get_greeter_role(guild: Guild) -> Role:
     for role in guild.roles:
         if role.name.lower() == GREETER_ROLE_NAME.lower():
             return role
-
-    return await guild.create_role(name=GREETER_ROLE_NAME)
+    raise GreeterRoleNotConfigured
 
 
 class GreetingRoleView(View):
     @ui.button(label="Be a greeter", style=ButtonStyle.green)
     async def add_or_remove_role(self, button: Button[None], inter: MessageInteraction) -> None:
+        tag_repo = self.bot.tag_repository
+        if not tag_repo:
+            raise DatabaseNotConnectedError
+
         guild = inter.guild
         if guild is None:
             # The command requires the Manage Guild and Manage Roles permissions,
@@ -44,6 +54,11 @@ class GreetingRoleView(View):
             button.label = "Stop being a greeter"
             button.style = ButtonStyle.red
 
+        await tag_repo.update_greeter(
+            guild.id,
+            member.id,
+            (not has_greeter_role),  # Update the role to have been flipped.
+        )
         await inter.response.edit_message(view=self)
 
 
@@ -58,6 +73,9 @@ class GreetingRoleView(View):
 
 class Greetings(Cog):
     """Cog for introducing friends to new members."""
+
+    def __init__(self, bot: Bot) -> None:
+        self.bot = bot
 
     @bot_has_permissions(manage_guild=True, manage_roles=True)
     @guild_only()

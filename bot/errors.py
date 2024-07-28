@@ -7,3 +7,7 @@ class DatabaseNotConnectedError(CommandError):
 
 class UserNotMemberError(CommandError):
     """Raised when `Interaction.author` is not a `Member`."""
+
+
+class GreeterRoleNotConfiguredError(CommandError):
+    """Raised when the guild is missing the Greeter role."""
