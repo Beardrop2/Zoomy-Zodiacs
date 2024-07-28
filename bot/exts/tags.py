@@ -31,8 +31,7 @@ class TagsDropdown(StringSelect[None]):
         if tag_repo is None:
             raise DatabaseNotConnectedError
 
-        for tag in self.values:
-            await tag_repo.add(interaction.author.id, cast(TagType, tag))
+        await tag_repo.add(interaction.author.id, cast(list[TagType], self.values))
 
         s = "s" if len(self.values) > 1 else ""  # Fix grammar if multiple tags are added
         added_tags = ", ".join(f"`{tag}`" for tag in self.values)
