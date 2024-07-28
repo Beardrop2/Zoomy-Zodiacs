@@ -103,7 +103,7 @@ class Tags(Cog):
                 # If roles/tags are empty for the user, display "None"
                 content += f"{key}: None\n"
 
-        user_info = Embed(title=name, description=content)
+        user_info = Embed(title=name, description=content, color=member.color)
         user_info.set_thumbnail(member.display_avatar.url)
 
         await interaction.send(embed=user_info, allowed_mentions=AllowedMentions.none())
