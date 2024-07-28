@@ -1,4 +1,4 @@
-from disnake import AppCmdInter, Color, Embed, Member
+from disnake import AllowedMentions, AppCmdInter, Color, Embed, Member
 from disnake.ext.commands import Cog, slash_command
 
 from bot.bot import Bot
@@ -10,8 +10,9 @@ class Tags(Cog):
     def __init__(self, bot: Bot) -> None:
         self.bot = bot
 
-    @slash_command(description="Manage tags")
-    async def tag(self, _: AppCmdInter) -> None: ...
+    @slash_command()
+    async def tag(self, _: AppCmdInter) -> None:
+        """Manage your tags."""
 
     @tag.sub_command()
     async def add(self, interaction: AppCmdInter, tag: TagType) -> None:
@@ -77,29 +78,35 @@ class Tags(Cog):
         tag_repo = self.bot.tag_repository
         if not tag_repo:
             raise DatabaseNotConnectedError
+
         tag_list = await tag_repo.get(member.id)
+
         name = member.name
         if member.nick:
             name = f"{member.nick} ({name})"
+
         # [1:] to remove the @everyone in the roles list
         info_dict = {
-            "Joined": f"<t:{int(member.joined_at.timestamp())}:R>",
             "Roles": ", ".join(role.mention for role in member.roles[1:]),
             "Tags": ", ".join(f"`{tag}`" for tag in tag_list),
         }
+
+        # The join date info may not be available on some users
+        if member.joined_at is not None:
+            info_dict["Joined"] = f"<t:{int(member.joined_at.timestamp())}:R>"
+
         content = "**Member Info**\n"
         for key, value in info_dict.items():
             if value != "":
                 content += f"{key}: {value}\n"
             else:
-                # if roles/tags are empty for users, display none
+                # If roles/tags are empty for the user, display "None"
                 content += f"{key}: None\n"
-        user_info = Embed(
-            title=name,
-            description=content,
-        )
+
+        user_info = Embed(title=name, description=content, color=member.color)
         user_info.set_thumbnail(member.display_avatar.url)
-        await interaction.send(embed=user_info, allowed_mentions=False)
+
+        await interaction.send(embed=user_info, allowed_mentions=AllowedMentions.none())
 
 
 def setup(bot: Bot) -> None:

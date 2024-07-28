@@ -143,17 +143,17 @@ class SqliteTagRepository(TagRepository):
                     WHERE t1.user_id = ? AND t2.user_id != t1.user_id
                 )
                 ORDER BY t.user_id;
-                """
+            """
             await cursor.execute(query, (user_id,))
 
-            result_any_tags: list[tuple[int, str]] = await cursor.fetchall()  # type: ignore[reportAssignmentType]
+            result_any_tags: list[tuple[int, str]] = await cursor.fetchall()  # pyright: ignore[reportAssignmentType]
 
             # Limit to top 10 users with best ratio of tags in common
             return await suggest_friends(result_any_tags, 10, user_tags)
 
 
 async def group_friends(result: list[tuple[int, str]]) -> dict[int, set[str]]:
-    # Group the results by user_id
+    # Group the results by Discord ID
     suggestions: defaultdict[int, set[str]] = defaultdict(set)
     for suggested_user_id, tag in result:
         suggestions[suggested_user_id].add(tag)
@@ -162,16 +162,16 @@ async def group_friends(result: list[tuple[int, str]]) -> dict[int, set[str]]:
 
 async def suggest_friends(
     result: list[tuple[int, str]],
-    amt: int,
+    limit: int,
     user_tags: list[str],
 ) -> list[tuple[int, list[str]]]:
     suggestions = await group_friends(result)
-    user_tags = set(user_tags)
+    deduplicated_user_tags = set(user_tags)
 
     def key(tags: set[str]) -> float:
         """Use ratio of tags in common:total tags to prevent gaming the system by having every tag."""
-        return len(user_tags & tags) / len(user_tags | tags)
+        return len(deduplicated_user_tags & tags) / len(deduplicated_user_tags | tags)
 
-    # Limit to top {amt} users with most common tags
-    res = sorted(suggestions.items(), key=lambda x: (key(x[1]), x[0]), reverse=True)[:amt]
+    # Limit to top `limit` users with most common tags
+    res = sorted(suggestions.items(), key=lambda x: (key(x[1]), x[0]), reverse=True)[:limit]
     return [(k, sorted(v)) for k, v in res]
