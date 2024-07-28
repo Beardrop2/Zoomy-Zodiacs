@@ -1,9 +1,45 @@
-from disnake import AllowedMentions, AppCmdInter, Color, Embed, Member
+from typing import get_args
+
+from disnake import AllowedMentions, AppCmdInter, Color, Embed, Member, MessageInteraction, SelectOption
 from disnake.ext.commands import Cog, slash_command
+from disnake.ui import StringSelect, View
 
 from bot.bot import Bot
 from bot.errors import DatabaseNotConnectedError
 from bot.repositories.tags import TagType
+
+
+class TagsDropdown(StringSelect):
+    def __init__(self, bot: Bot) -> None:
+        self.bot = bot
+
+        options = [
+            SelectOption(
+                label=tag,
+                description=f"You are interested in `{tag}`",  # TODO: better ways to write this?
+            )
+            for tag in get_args(TagType)
+        ]
+
+        super().__init__(
+            placeholder="Choose your tags",
+            min_values=1,
+            max_values=21,
+            options=options,
+        )
+
+    async def callback(self, inter: MessageInteraction) -> None:
+        for tag in self.values:
+            await self.bot.tag_repository.add(inter.author.id, tag)
+        s = "s" if len(self.values) > 1 else ""  # to fix grammar if tags are added
+        added_tags = ", ".join(f"`{tag}`" for tag in self.values)
+        await inter.response.send_message(f"Added tag{s} {added_tags} to {inter.user}", ephemeral=True)
+
+
+class DropdownView(View):
+    def __init__(self, bot: Bot) -> None:
+        super().__init__()
+        self.add_item(TagsDropdown(bot=bot))
 
 
 class Tags(Cog):
@@ -15,14 +51,11 @@ class Tags(Cog):
         """Manage your tags."""
 
     @tag.sub_command()
-    async def add(self, interaction: AppCmdInter, tag: TagType) -> None:
-        """Add a user tag to yourself."""
+    async def add(self, interaction: AppCmdInter) -> None:
+        """Add user tag(s) to yourself."""
 
-        if self.bot.tag_repository is None:
-            raise DatabaseNotConnectedError
-
-        await self.bot.tag_repository.add(interaction.author.id, tag)
-        await interaction.response.send_message(f"Added tag `{tag}` to {interaction.user}", ephemeral=True)
+        view = DropdownView(self.bot)
+        await interaction.response.send_message("What are you interested in?", view=view)
 
     @tag.sub_command()
     async def remove(self, interaction: AppCmdInter, tag: TagType) -> None:
