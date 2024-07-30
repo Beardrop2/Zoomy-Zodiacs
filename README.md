@@ -1,6 +1,6 @@
 # 🤖 Zoomy Zodiacs' Community Bot
 
-For the [Python Discord's](https://pythondiscord.com) 11th code jam with the
+For the [Python Discord](https://pythondiscord.com)'s 11th code jam with the
 theme "Information Overload", we built a community bot. As a new community
 member, this bot aims to help you get around the server.
 
