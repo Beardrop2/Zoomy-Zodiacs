@@ -15,9 +15,15 @@ class Settings(BaseSettings):
         discord_bot_token: The Discord bot token. You may retrieve this from the
                            "Bot" tab of your Discord application.
         database_path: The path to the SQLite database.
+        ollama_host: The host for server for Ollama requests.
+                     See https://github.com/ollama/ollama
+        ollama_model: The model used for Ollama requests.
+                      See https://ollama.com/library
     """
 
     model_config = SettingsConfigDict(env_file=".env", env_prefix="ZZ_")
 
     discord_bot_token: str
     database_path: str = "zz.db"
+    ollama_host: str
+    ollama_model: str

@@ -18,6 +18,8 @@ dependencies = [
     "aiosqlite>=0.20.0",
     "chardet>=5.2.0",
     "pytest-asyncio>=0.23.8",
+    "ollama>=0.3.0",
+    "ruff>=0.5.4",
 ]
 
 [tool.pdm.dev-dependencies]
@@ -94,14 +96,12 @@ reportUnknownVariableType = "none"
 reportUnknownMemberType = "none"
 reportImplicitStringConcatenation = "none"
 
-
 [tool.pytest.ini_options]
 minversion = "8.2"
 addopts = "-ra -q"
 python_files = "test_*.py"
 testpaths = ["tests"]
 pythonpath = ["bot"]
-
 
 [build-system]
 requires = ["pdm-backend"]

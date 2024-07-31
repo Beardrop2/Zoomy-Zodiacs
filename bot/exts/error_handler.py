@@ -5,7 +5,7 @@ from disnake.ext.commands import BotMissingPermissions, Cog, CommandError, NoPri
 from disnake.ui.button import Button
 
 from bot.bot import Bot
-from bot.errors import DatabaseNotConnectedError
+from bot.errors import DatabaseNotConnectedError, GreeterRoleNotConfiguredError
 
 
 class ErrorEmbed(Embed):
@@ -72,6 +72,12 @@ class ErrorHandler(Cog):
             embed.internal = False
             embed.set_error("I don't have the correct permissions to do that.")
             embed.set_tip("Ensure my role is high enough in the role hierarchy.")
+
+        if isinstance(error, GreeterRoleNotConfiguredError):
+            embed.internal = False
+            embed.set_error("There is no role Greeter configured in this server.")
+            embed.set_tip("Create a role called 'Greeter'.")
+            embed.internal = False
 
         if isinstance(error, NoPrivateMessage):
             embed.internal = False

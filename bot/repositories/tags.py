@@ -5,6 +5,15 @@ from typing import Literal, override
 
 import aiosqlite
 
+
+class UnknownUserError(Exception):
+    """Raised when a user id is not found in the database."""
+
+
+class DatabaseIntegrityError(Exception):
+    """Raised when the database returns anomalous output."""
+
+
 TagType = Literal[
     "algos-and-data-structs",
     "async-and-concurrency",
@@ -45,19 +54,22 @@ class TagRepository(ABC):
         """
 
     @abstractmethod
-    async def add(self, user_id: int, tag: TagType) -> None:
+    async def add(self, user_id: int, tag: list[TagType], greeter: bool) -> None:
         """Add a tag to a user.
 
         Args:
+            guild_id: the Discord Server ID
             user_id: The user's Discord ID.
             tag: The tag to add.
+            greeter: A flag for if the user has opted in to suggestions
         """
 
     @abstractmethod
-    async def get(self, user_id: int) -> list[str]:
+    async def get_tags(self, guild_id: int, user_id: int) -> list[str]:
         """Get all the tags of a user.
 
         Args:
+            guild_id: the Discord Server ID
             user_id: The user's Discord ID.
 
         Returns:
@@ -65,22 +77,54 @@ class TagRepository(ABC):
         """
 
     @abstractmethod
-    async def remove(self, user_id: int, tag: TagType) -> None:
+    async def remove_tag(self, guild_id: int, user_id: int, tag: TagType) -> None:
         """Remove a tag from a user.
 
         This does nothing if the user doesn't have the specified tag.
 
         Args:
+            guild_id: the Discord Server ID
             user_id: The user's Discord ID.
             tag: The tag to remove.
         """
 
     @abstractmethod
-    async def get_friend_suggestions(self, user_id: int) -> list[tuple[int, list[str]]]:
+    async def update_greeter(
+        self,
+        guild_id: int,
+        user_id: int,
+        greeter: bool,
+    ) -> None:
+        """Update a given users status as a greeter within a guild.
+
+        Args:
+            user_id: The user's Discord ID.
+            guild_id: The Discord Server ID.
+            greeter: A flag for if the user has opted in as a greeter or not.
+        """
+
+    @abstractmethod
+    async def get_greeter(self, guild_id: int, user_id: int) -> bool:
+        """Check a given users status as a greeter within a guild.
+
+        Returns True if the user record has the Greeter role.
+        Else returns false.
+
+        Note that the user record should be kept in sync with the Discord user.
+
+        Args:
+            user_id: The user's Discord ID.
+            guild_id: The Discord Server ID.
+            greeter: A flag for if the user opts in to suggestions
+        """
+
+    @abstractmethod
+    async def get_friend_suggestions(self, guild_id: int, user_id: int) -> list[tuple[int, list[str]]]:
         """Suggest friends for a user based on their tags.
 
         Args:
             user_id: The user's Discord ID.
+            guild_id: The Discord Server ID.
 
         Returns:
             A list containing pairs of suggested user IDs with
@@ -97,38 +141,91 @@ class SqliteTagRepository(TagRepository):
     @override
     async def initialize(self) -> None:
         async with self.database.cursor() as cursor:
-            await cursor.execute("""
-                CREATE TABLE IF NOT EXISTS tags (
+            await cursor.execute(
+                """
+               CREATE TABLE IF NOT EXISTS tags (
+                    guild_id INTEGER NOT NULL,
                     user_id INTEGER NOT NULL,
                     tag TEXT NOT NULL,
-                    PRIMARY KEY (user_id, tag)
+                    greeter BOOLEAN,
+                    PRIMARY KEY (guild_id, user_id, tag)
                 )
-            """)
+                """,
+            )
+        await self.database.commit()
+
+    @override
+    async def add(
+        self,
+        guild_id: int,
+        user_id: int,
+        tags: list[TagType],
+        greeter: bool,
+    ) -> None:
+        async with self.database.cursor() as cursor:
+            sql_script = "INSERT OR IGNORE INTO tags (guild_id, user_id, tag, greeter) VALUES (?, ?, ?, ?)"
+            for tag in tags:
+                await cursor.execute(
+                    sql_script,
+                    (guild_id, user_id, tag, greeter),
+                )
             await self.database.commit()
 
     @override
-    async def add(self, user_id: int, tag: TagType) -> None:
+    async def get_tags(self, guild_id: int, user_id: int) -> list[str]:
         async with self.database.cursor() as cursor:
-            await cursor.execute("INSERT OR IGNORE INTO tags (user_id, tag) VALUES (?, ?)", (user_id, tag))
-            await self.database.commit()
-
-    @override
-    async def get(self, user_id: int) -> list[str]:
-        async with self.database.cursor() as cursor:
-            await cursor.execute("SELECT tag FROM tags WHERE user_id = ?", (user_id,))
+            await cursor.execute(
+                "SELECT tag FROM tags WHERE guild_id = ? AND user_id = ?",
+                (guild_id, user_id),
+            )
             rows = await cursor.fetchall()
             return [row[0] for row in rows]
 
     @override
-    async def remove(self, user_id: int, tag: TagType) -> None:
+    async def remove_tag(self, guild_id: int, user_id: int, tag: TagType) -> None:
+        query = "DELETE FROM tags WHERE guild_id = ? AND user_id = ? AND tag = ?"
         async with self.database.cursor() as cursor:
-            await cursor.execute("DELETE FROM tags WHERE user_id = ? AND tag = ?", (user_id, tag))
+            await cursor.execute(
+                query,
+                (guild_id, user_id, tag),
+            )
             await self.database.commit()
 
     @override
-    async def get_friend_suggestions(self, user_id: int) -> list[tuple[int, list[str]]]:
+    async def update_greeter(
+        self,
+        guild_id: int,
+        user_id: int,
+        greeter: bool,
+    ) -> None:
         async with self.database.cursor() as cursor:
-            user_tags = await self.get(user_id)
+            await cursor.execute(
+                """
+                UPDATE tags
+                SET greeter = ?
+                WHERE guild_id = ? AND user_id = ?""",
+                (greeter, guild_id, user_id),
+            )
+        await self.database.commit()
+
+    @override
+    async def get_greeter(self, guild_id: int, user_id: int) -> bool:
+        async with self.database.cursor() as cursor:
+            await cursor.execute(
+                "SELECT greeter FROM tags WHERE guild_id = ? AND user_id = ?",
+                (guild_id, user_id),
+            )
+            rows = await cursor.fetchall()
+            if len(rows) == 0:
+                return False
+            if len(rows) > 1:  # There should never be duplicate users.
+                raise DatabaseIntegrityError
+            return bool(rows[0][0])
+
+    @override
+    async def get_friend_suggestions(self, guild_id: int, user_id: int) -> list[tuple[int, list[str]]]:
+        async with self.database.cursor() as cursor:
+            user_tags = await self.get_tags(guild_id, user_id)
 
             if not user_tags:
                 return []
@@ -136,24 +233,26 @@ class SqliteTagRepository(TagRepository):
             query = """
                 SELECT t.user_id, t.tag
                 FROM tags t
-                WHERE t.user_id IN (
+                WHERE t.user_id  IN (
                     SELECT t2.user_id
                     FROM tags t1
                     JOIN tags t2 ON t1.tag = t2.tag
-                    WHERE t1.user_id = ? AND t2.user_id != t1.user_id
+                    WHERE t1.user_id = ? AND
+                    t2.user_id != t1.user_id AND
+                    t1.guild_id = t2.guild_id AND
+                    t2.greeter = TRUE
                 )
-                ORDER BY t.user_id;
-                """
+            """
             await cursor.execute(query, (user_id,))
 
-            result_any_tags: list[tuple[int, str]] = await cursor.fetchall()  # type: ignore[reportAssignmentType]
+            result_any_tags: list[tuple[int, str]] = await cursor.fetchall()  # pyright: ignore[reportAssignmentType]
 
             # Limit to top 10 users with best ratio of tags in common
             return await suggest_friends(result_any_tags, 10, user_tags)
 
 
 async def group_friends(result: list[tuple[int, str]]) -> dict[int, set[str]]:
-    # Group the results by user_id
+    # Group the results by Discord ID
     suggestions: defaultdict[int, set[str]] = defaultdict(set)
     for suggested_user_id, tag in result:
         suggestions[suggested_user_id].add(tag)
@@ -162,16 +261,16 @@ async def group_friends(result: list[tuple[int, str]]) -> dict[int, set[str]]:
 
 async def suggest_friends(
     result: list[tuple[int, str]],
-    amt: int,
+    limit: int,
     user_tags: list[str],
 ) -> list[tuple[int, list[str]]]:
     suggestions = await group_friends(result)
-    user_tags = set(user_tags)
+    deduplicated_user_tags = set(user_tags)
 
     def key(tags: set[str]) -> float:
         """Use ratio of tags in common:total tags to prevent gaming the system by having every tag."""
-        return len(user_tags & tags) / len(user_tags | tags)
+        return len(deduplicated_user_tags & tags) / len(deduplicated_user_tags | tags)
 
-    # Limit to top {amt} users with most common tags
-    res = sorted(suggestions.items(), key=lambda x: (key(x[1]), x[0]), reverse=True)[:amt]
+    # Limit to top `limit` users with most common tags
+    res = sorted(suggestions.items(), key=lambda x: (key(x[1]), x[0]), reverse=True)[:limit]
     return [(k, sorted(v)) for k, v in res]
