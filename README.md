@@ -4,7 +4,6 @@ For the [Python Discord](https://pythondiscord.com)'s 11th code jam with the
 theme "Information Overload", we built a community bot. As a new community
 member, this bot aims to help you get around the server.
 
-Here is a video demonstration for the project:
 [![ZoomyZodiac Discord Bot](https://img.youtube.com/vi/UVSNVZMbxMw/0.jpg)](https://youtu.be/UVSNVZMbxMw)
 
 ## ➕ Features
