@@ -111,7 +111,7 @@ class Tags(Cog):
         candidates = await tag_repo.get_friend_suggestions(guild_id, user_id)
 
         for candidate_user_id, common_tags in candidates:
-            member = await self.bot.fetch_user(candidate_user_id)
+            member = await interaction.guild.get_member(candidate_user_id)
             member_roles = [role.name for role in member.roles]
             member_mention = member.mention
             tag_list = ", ".join(f"`{tag}`" for tag in common_tags)
